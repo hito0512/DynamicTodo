@@ -23,14 +23,14 @@
 
 #### 预览1
 
-![preview](https://github.com/KarlKaijie/SiYuanToDo/blob/main/preview/preview.png)
+![preview](https://github.com/hito0512/DynamicTodo/blob/main/preview/preview.png)
 
 #### 预览2
 
-![preview2](https://github.com/KarlKaijie/SiYuanToDo/blob/main/preview/3.png)
+![preview2](https://github.com/hito0512/DynamicTodo/blob/main/preview/preview2.png)
 
 
 ## 更新记录
 
-v0.0.1 初版
+v0.1.0 初版
 1. 实现了一些基础功能：创建任务，更新任务，删除任务
