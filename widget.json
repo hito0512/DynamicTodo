@@ -1,0 +1,27 @@
+{
+	"name": "DynamicTodo",
+	"author": "hito",
+	"url": "https://github.com/siyuan-note/widget-sample",
+	"version": "0.1.0",
+	"minAppVersion": "2.9.3",
+	"displayName": {
+	  "default": "DynamicTodoList",
+	  "zh_CN": "DynamicTodo"
+	},
+	"description": {
+	  "default": "This is a dynamically updating todo list.",
+	  "zh_CN": "这是一个动态更新的 todo list。[注意]目前只有基本功能。"
+	},
+	"readme": {
+	  "default": "README.md",
+	  "zh_CN": "README_zh_CN.md"
+	},
+	"funding": {
+	  "openCollective": "",
+	  "patreon": "",
+	  "github": "",
+	  "custom": [
+
+	  ]
+	}
+  }

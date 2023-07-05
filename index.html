@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DynamicTodo</title>
+    <link rel="stylesheet" href="style.css">
+    <!--导入jQuery脚本-->
+    <script src="static/jquery.min.js"></script>
+    <script src="script/style.js" type="module"></script>
+</head>
+<body>
+    <div class="app">
+        <!-- 主要内容 -->
+        <main class="project">
+            <div class="project-tasks">
+                <!-- 第一列 -->
+                <div class='project-column' id="project-unfinish">
+                    <!-- 标题 -->
+                    <div class='project-column-heading'>
+                        <h3 class='project-column-heading__title'>未完成</h3>
+                        <!-- <button class='project-column-heading__options'></button> -->
+                    </div>
+                    <!-- 内容 -->
+                    
+                    <div class="addTaskCard">
+                        <button class='project-column-heading__options' id="appendTask">+</button>
+                    </div>
+                </div>
+
+                <!-- 第二列 -->
+                <div class='project-column' id="project-doing">
+                    <!-- 标题 -->
+                    <div class='project-column-heading'>
+                        <h3 class='project-column-heading__title'>进行中</h3>
+                        <!-- <button class='project-column-heading__options'>  </button> -->
+                    </div>
+                    <!-- 内容 -->
+                    
+                    <div class="addTaskCard">
+                        <button class='project-column-heading__options' id="appendTask">+</button>
+                    </div>
+                </div>
+
+                <!-- 第三列 -->
+                <div class='project-column' id="project-done">
+                    <div class='project-column-heading'>
+                        <h3 class='project-column-heading__title'>已完成</h3>
+                        <!-- <button class='project-column-heading__options'></button> -->
+                    </div>
+                    
+                    <div class="addTaskCard">
+                        <button class='project-column-heading__options' id="appendTask">+</button>
+                    </div>
+                </div>
+
+                <!-- 第四列 -->
+                <div class='project-column' id="project-todo">
+                    <div class='project-column-heading'>
+                        <h3 class='project-column-heading__title'>计划中</h3>
+                        <!-- <button class='project-column-heading__options' id="appendTask">+</button> -->
+                    </div>
+
+                    <!-- <div class='task' draggable='true'>
+                        <div class='task__tags'>
+                            <span class='task__tag task__tag--done'>Illustration</span>
+                            <button class='task__options'></button>
+                        </div>
+                        <p>Send Advert illustrations over to production company.</p>
+                        <div class='task__stats'>
+                            <span><time datetime="2021-11-24T20:00:00">Nov 24</time></span>
+                            <span>12</span>
+                            <span>5</span>
+                            <span class='task__owner'></span>
+                        </div>
+                    </div> -->
+                    <div class="addTaskCard">
+                        <button class='project-column-heading__options' id="appendTask" >+</button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- 添加任务 -->
+        <div id="addTask" class="addTask"> 
+            <div class="task-setting" id="taskSetting">
+                <div id="submit_task">
+                    <h3>编辑</h3>
+                    <div>
+                        <button class='update' id="update">更新</button>
+                        <button class='submit' id="submit">创建</button>
+                    </div>
+                </div>
+                
+                <div class='tag-progress'>
+                    <p> 
+                        <span class="left">任务名称：</span>
+                        <input type="text" placeholder="任务名称" id="taskname" class="taskname">
+                    </p>
+                </div>
+                <div class='tag-progress'>
+                    <p> 
+                        <span class="left">任务状态：</span>
+                        <select name="taskType" id="taskType">
+                            <option value="todo"> 计划中</option>
+                            <option value="doing">进行中</option>
+                            <option value="done"> 已完成</option>
+                            <option value="unfinish">未完成</option>
+                        </select>
+                    </p>
+                </div>
+                <div class='tag-progress'>
+                    <p>
+                        <span>任务描述：</span> 
+                        <textarea id="taskcontent" class="taskcontent"></textarea>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</body>
+</html>

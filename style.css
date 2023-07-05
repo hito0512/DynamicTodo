@@ -1,0 +1,409 @@
+:root {
+    --bg:#f1f5fa;
+    --header:#fbf4f6;
+    --text:#2e2e2f;
+    --white:#ffffff;
+    --light-grey:#c4cad3;
+    --tag-1:#e8e1bd;
+    --tag-1-text:#2e66ba;
+    --tag-2:#d6ede2;
+    --tag-2-text:#13854e;
+    --tag-3:#ceecfd;
+    --tag-3-text:#2d86ba;
+    --tag-4:#f2dcf5;
+    --tag-4-text:#a734ba;
+    --purple:#7784ee;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+.app {
+    background-color: #efeeee2d;
+    /* background-color: transparent; */
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-wrap: wrap;
+}
+.project {
+    padding: 2rem;
+    width: 95%;
+    /* max-width: 100vw;  */
+    display: inline-block;
+  }
+
+.project-tasks {
+    display: grid;
+    grid-template-columns: repeat(4, 25%);
+    
+    width: 100%;
+    grid-column-gap: 1.5rem;
+  }
+
+.project-column-heading {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.project-column-heading__title {
+    font-size: 20px;
+  }
+/* .addTaskCard{ */
+    /* position: relative; */
+    /* display: ab; */
+    /* display: block;*/
+    /* height: 30px;
+    width: 100%; */
+    /* left: 0; */
+    /* position: absolute; */
+    /* top: 50px;  */
+    /* left: 50px;  */
+  /* } */
+.project-column-heading__options {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    color: var(--purple);
+    font-size: 18px;
+    cursor: pointer;
+    margin: 0 0.2rem;
+    border: 0;
+    outline: 0;
+    will-change: transform;
+    border-radius: 100rem;
+    left: 0;
+}
+.project-column-heading__options:hover{
+  background: var(--light-grey);
+  transform: scale(1.05);
+}
+.project-column-heading__options:active {
+  transform: scale(0.85);
+}
+
+
+
+
+.task {
+    /* cursor: move; */
+    background-color: var(--white);
+    padding: 1rem;
+    border-radius: 8px;
+    width: 100%;
+    box-shadow: rgba(36, 35, 35, 0.1) 0px 4px 8px 0px;
+    margin-bottom: 1rem;
+    border: 3px dashed transparent;
+
+    /* display: flex;
+    flex-wrap: wrap; */
+
+  }
+.task:hover {
+    box-shadow: rgba(87, 81, 81, 0.405) 0px 5px 8px 0px;
+    /* border-color: rgba(162, 179, 207, 0.2) !important; */
+}
+
+.task p {
+    /* width: 300px;  */
+    width: 100%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-size: 15px;
+    margin: 1.2rem 0;
+    
+  }
+
+.task__tag {
+    border-radius: 100px;
+    padding: 2px 13px;
+    font-size: 12px;
+  }
+.task__tag--unfinish {
+    color: var(--tag-4-text);
+    background-color: var(--tag-4);
+  }
+.task__tag--doing {
+    color: var(--tag-3-text);
+    background-color: var(--tag-3);
+  }
+.task__tag--done {
+    color: var(--tag-2-text);
+    background-color: var(--tag-2);
+  }
+.task__tag--todo {
+    color: var(--tag-1-text);
+    background-color: #2962b826;
+    ;
+  }
+.task__tags {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+.task__options {
+    width: 15px;
+    height: 15px;
+    background-image: url("img/setting.png");
+    background-size: contain;
+    border: 0px none var(--light-grey);
+    border-radius: 100rem;
+    color: var(--light-grey);
+}
+.task__options:hover{
+    transform: scale(1.2);
+}
+.task__options:active {
+    transform: scale(0.9);
+}
+.task__stats {
+    position: relative;
+    width: 100%;
+    color: var(--light-grey);
+    font-size: 12px;
+  }
+.task__stats span:not(:last-of-type) {
+    margin-right: 1rem;
+  }
+.task__stats svg {
+    margin-right: 5px;
+  }
+
+/* --------------------------- 添加任务 --------------------- */
+.addTask{
+    width:  450px;
+    height: 420px;
+    padding: 1rem 2rem;
+    left: 500px;
+    top: 200px;
+    float: left;
+    position: absolute;
+    /* margin-top: 20%; */
+    /* margin-top: 0; */
+    display: none;
+    cursor: move;
+    /* margin-left: 30%; */
+    /* background-color: var(--bg); */
+}
+.addTask.visible{
+  display: block;
+}
+.task-setting{
+    padding: 1rem;
+    background-color: var(--white);
+    border-radius: 10px;
+    /* opacity: 0; 初始时透明度为0 */
+    /* height: 0; 初始时高度为0 */
+    overflow: hidden; /* 隐藏溢出的内容 */
+    /* transition: opacity 0.5s ease, height 0.5s ease; 添加过渡效果 */
+    /* transition: height 1s ease; */
+    display: none;
+}
+.task-setting.visible {
+  /* opacity: 1; 显示时完全透明 */
+  /* height: auto; 根据内容自动调整高度 */
+  display: inline-block;
+}
+#submit_task{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+/* #close{
+    background-color: transparent;
+    height: 25px;
+    width: 45px;
+    padding: 0px 3px;
+    box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.2); 
+    border: 1px solid  #f70808;
+    color: #f70808;
+    border-radius: 5px;
+  }
+#close:hover{
+    transform: scale(1.05);
+}
+#close:active {
+    transform: scale(0.95);
+} */
+
+#submit{
+    background-color: transparent;
+    height: 25px;
+    width: 45px;
+    padding: 0px 3px;
+    box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.2); 
+    border: 1px solid  #08a0f7;
+    color: #08a0f7;
+    border-radius: 5px;
+    
+  }
+#submit:hover{
+    transform: scale(1.05);
+}
+#submit:active {
+    transform: scale(0.95);
+}
+
+#update{
+    background-color: #41cf8849;
+    height: 25px;
+    width: 45px;
+    padding: 0px 3px;
+    box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.2); 
+    border: 1px solid  #13854e;
+    color: #13854e;
+    border-radius: 5px;
+    
+  }
+#update:hover{
+    transform: scale(1.05);
+}
+#update:active {
+    transform: scale(0.95);
+}
+
+.tag-progress {
+    margin: 1.5rem 0;
+  }
+  .tag-progress h2 {
+    font-size: 16px;
+    margin-bottom: 1rem;
+  }
+  .tag-progress p {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .tag-progress p span {
+    color: rgb(180, 180, 180);
+  }
+  .tag-progress p select{
+    height: 30px;
+    width: 250px;
+  }
+  .tag-progress p select:focus{
+    border-color: #08a0f7;
+    border-width: 2px;
+  }
+  #taskname {
+    width: 250px;
+    height: 30px;
+    border-radius:5px;
+    border: 1px solid  #2e2e2f;
+    outline: none;
+  }
+  #taskname:focus {
+    border-color: #08a0f7;
+    border-width: 2px;
+  }
+  /* 任务描述 */
+  #taskcontent {
+    width: 250px;
+    height: 220px;
+    border-radius:5px;
+    border: 1px solid #2e2e2f;
+    outline: none;
+    resize: none;
+  }
+  #taskcontent:focus {
+    border-color: #08a0f7;
+    border-width: 2px;
+  }
+/* --------------------------- 任务编辑 --------------------- */
+.editPanel{
+    /* cursor: pointer; */
+    background-color: var(--white);
+    width: 60px;
+    height: 60px;
+    box-shadow: rgba(99, 99, 99, 0.3) 0px 2px 8px 0px;
+    border: 3px dashed transparent;
+    /* display: flex; */
+    flex-direction: column;
+    left: 80%;
+    top: -65px;
+    float: left;
+    position: relative;
+    align-items: center;
+    border-radius: 10px;
+  }
+
+.editPanel.hide{
+    display: none;
+}
+.editPanel:hover {
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  }
+
+.edbutton{
+    border-radius: 5px;
+    /* background-color: var(--white); */
+    background-color: #ffffff;
+    width: 100%;
+    height: 25px;
+    margin-bottom: 0.2rem;
+    border: none;
+    transition: background-color 0.1s;
+    color: #08a0f7;
+    display: flex;
+    align-items: center;
+}
+.editIcon{
+  width: 15px;
+  height: 15px;
+  background-image: url("img/edit.png");
+  margin-right: 5px; /* 调整图标和文本之间的间距 */
+  /* background-color: transparent; */
+  opacity : '0.5';
+}
+.delbutton{
+    border-radius: 5px;
+    background-color: #ffffff;
+    width: 100%;
+    height: 25px;
+    margin-bottom: 0.2rem;
+    border: none;
+    transition: background-color 0.1s;
+    color: #f70808;
+    display: flex;
+    align-items: center;
+}
+.delIcon{
+  width: 15px;
+  height: 15px;
+  background-image: url("img/del.png");
+  margin-right: 5px; /* 调整图标和文本之间的间距 */
+  /* background-color: transparent; */
+  opacity : '0.5';
+}
+.edbutton:hover{
+    /* background-color: #e0f0ea72; */
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+  
+.delbutton:hover{
+    /* background-color: #f4797942; */
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+.delbutton:active {
+  transform: scale(0.95);
+}
+.edbutton:active {
+  transform: scale(0.95);
+}
+/* --------------------------- 当页面缩小后的变化 ------------- */
+@media only screen and (max-width: 900px) {
+    .project-tasks {
+      grid-template-columns: 50%;  
+    }
+  }
