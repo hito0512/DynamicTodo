@@ -81,6 +81,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
     var title = document.getElementById("taskname");      // 任务名称
     var content = document.getElementById("taskcontent"); // 任务内容
     var taskType = document.getElementById("taskType");   // 任务类型
+
+    // 任务预览
+    
+    var taskPreview = document.getElementById("taskPreview");
     /*- ---------------------------------------------------------------------- */
     // 显示面板
     document.addEventListener('click', function (event) {
@@ -99,6 +103,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
     // 创建任务
     addbtn.addEventListener('click', async function () {
         await addNewTask();
+
+        // 关闭面板
+        // addbtn.style.display = 'none';
     });
 
     // 对任务的各种编辑
@@ -114,7 +121,36 @@ document.addEventListener('DOMContentLoaded', (event) => {
         
     });
 
-    
+    // -----------------------  任务预览  ----------------
+    document.addEventListener("mouseover", function (event) {
+        // var clsName = event.target.className;
+        var divNode = event.target;
+        // if (divNode.className === 'task_view') {
+        //     taskPreview.style.display = 'block';
+        // }
+        // console.log(divNode.classList[0]);
+        // document.addEventListener("mousemove", function(event) {
+        //     var myDiv = document.getElementById("myDiv");
+        //     myDiv.style.left = event.clientX + "px";
+        //     myDiv.style.top = event.clientY + "px";
+        // });
+        
+        if (divNode.classList[0] === 'task__tag') {
+                // var panel = divNode.parentNode.parentNode.parentNode.querySelector('.editPanel');
+            taskPreview.style.display = 'block';
+            var left = event.clientX - taskPreview.offsetWidth;
+            if (left < 0) {
+                left = event.clientX + 20 ;
+            }
+            taskPreview.style.left = left + "px";
+            var top = event.clientY;
+            taskPreview.style.top = top + 20 + "px";
+        }
+    });
+    // 关闭任务预览
+    document.addEventListener("mouseout", function () {
+        taskPreview.style.display = 'none';
+    });
 
     
     /*- ------------------ 其他函数 ------------------------- */

@@ -101,7 +101,7 @@
     box-shadow: rgba(36, 35, 35, 0.1) 0px 4px 8px 0px;
     margin-bottom: 1rem;
     border: 3px dashed transparent;
-
+    justify-content: space-between;
     /* display: flex;
     flex-wrap: wrap; */
 
@@ -150,6 +150,7 @@
     align-items: center;
     justify-content: space-between;
   }
+
 .task__options {
     width: 15px;
     height: 15px;
@@ -218,23 +219,6 @@
     align-items: center;
     justify-content: space-between;
   }
-
-/* #close{
-    background-color: transparent;
-    height: 25px;
-    width: 45px;
-    padding: 0px 3px;
-    box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.2); 
-    border: 1px solid  #f70808;
-    color: #f70808;
-    border-radius: 5px;
-  }
-#close:hover{
-    transform: scale(1.05);
-}
-#close:active {
-    transform: scale(0.95);
-} */
 
 #submit{
     background-color: transparent;
@@ -400,6 +384,24 @@
 }
 .edbutton:active {
   transform: scale(0.95);
+}
+/* --------------------------- 任务预览 --------------------- */
+.taskPreview{
+    height: 350px;
+    width: 400px;
+    min-width: 250px;
+    padding: 1.5rem;
+    border-radius: 16px;
+    background: var(--white);
+    box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.3);
+    display: none;
+    flex-direction: column;
+    transition: .2s;
+    margin: 0;
+    /* float: left; */
+    scroll-snap-align: start;
+    /* clear: both; */
+    position: absolute;
 }
 /* --------------------------- 当页面缩小后的变化 ------------- */
 @media only screen and (max-width: 900px) {
