@@ -22,6 +22,13 @@
     font-family: "Poppins", sans-serif;
 }
 
+pre {
+	white-space: pre-wrap; /*css-3*/
+	white-space: -moz-pre-wrap; /*Mozilla,since1999*/
+	white-space: -pre-wrap; /*Opera4-6*/
+	white-space: -o-pre-wrap; /*Opera7*/
+	word-wrap: break-word; /*InternetExplorer5.5+*/
+}
 .app {
     background-color: #efeeee2d;
     /* background-color: transparent; */
@@ -259,48 +266,63 @@
 .tag-progress {
     margin: 1.5rem 0;
   }
-  .tag-progress h2 {
+.tag-progress h2 {
     font-size: 16px;
     margin-bottom: 1rem;
-  }
-  .tag-progress p {
+}
+.tag-progress p {
     display: flex;
     width: 100%;
     justify-content: space-between;
-  }
+}
   
-  .tag-progress p span {
+.tag-progress p span {
     color: rgb(180, 180, 180);
   }
-  .tag-progress p select{
+.tag-progress p select{
     height: 30px;
     width: 250px;
-  }
-  .tag-progress p select:focus{
+}
+.tag-progress p select:focus{
     border-color: #08a0f7;
     border-width: 2px;
-  }
-  #taskname {
+}
+
+/* .taskPreview{
+  line-height: 1.5;
+} */
+
+.tag-Preview{
+  margin: 1rem 0;
+}
+.tag-Preview p .pt {
+  color: rgb(180, 180, 180);
+  line-height: 1.2rem;
+}
+.pc{
+  margin-top: 1rem;
+}
+#taskname {
     width: 250px;
     height: 30px;
     border-radius:5px;
     border: 1px solid  #2e2e2f;
     outline: none;
-  }
-  #taskname:focus {
+}
+#taskname:focus {
     border-color: #08a0f7;
     border-width: 2px;
-  }
+}
   /* 任务描述 */
-  #taskcontent {
+#taskcontent {
     width: 250px;
     height: 220px;
     border-radius:5px;
     border: 1px solid #2e2e2f;
     outline: none;
     resize: none;
-  }
-  #taskcontent:focus {
+}
+#taskcontent:focus {
     border-color: #08a0f7;
     border-width: 2px;
   }
@@ -387,8 +409,8 @@
 }
 /* --------------------------- 任务预览 --------------------- */
 .taskPreview{
-    height: 350px;
-    width: 400px;
+    height: 400px;
+    width: 350px;
     min-width: 250px;
     padding: 1.5rem;
     border-radius: 16px;

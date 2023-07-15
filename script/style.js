@@ -83,8 +83,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
     var taskType = document.getElementById("taskType");   // 任务类型
 
     // 任务预览
-    
     var taskPreview = document.getElementById("taskPreview");
+    var previewDivTitle = document.getElementById("ptitle");
+    var previewDivState = document.getElementById("pstate");
+    var previewDivContent = document.getElementById("pcontent");
+    var previewDivTime = document.getElementById("ptime");
     /*- ---------------------------------------------------------------------- */
     // 显示面板
     document.addEventListener('click', function (event) {
@@ -103,9 +106,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
     // 创建任务
     addbtn.addEventListener('click', async function () {
         await addNewTask();
-
-        // 关闭面板
-        // addbtn.style.display = 'none';
     });
 
     // 对任务的各种编辑
@@ -123,29 +123,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     // -----------------------  任务预览  ----------------
     document.addEventListener("mouseover", function (event) {
-        // var clsName = event.target.className;
-        var divNode = event.target;
-        // if (divNode.className === 'task_view') {
-        //     taskPreview.style.display = 'block';
-        // }
-        // console.log(divNode.classList[0]);
-        // document.addEventListener("mousemove", function(event) {
-        //     var myDiv = document.getElementById("myDiv");
-        //     myDiv.style.left = event.clientX + "px";
-        //     myDiv.style.top = event.clientY + "px";
-        // });
-        
-        if (divNode.classList[0] === 'task__tag') {
-                // var panel = divNode.parentNode.parentNode.parentNode.querySelector('.editPanel');
-            taskPreview.style.display = 'block';
-            var left = event.clientX - taskPreview.offsetWidth;
-            if (left < 0) {
-                left = event.clientX + 20 ;
-            }
-            taskPreview.style.left = left + "px";
-            var top = event.clientY;
-            taskPreview.style.top = top + 20 + "px";
-        }
+        dataPreview(event);
     });
     // 关闭任务预览
     document.addEventListener("mouseout", function () {
@@ -194,6 +172,55 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     }
 
+    // 数据预览
+    function dataPreview(event) {
+        // 先设置预览框的位置
+        var divNode = event.target;
+        if (divNode.classList[0] === 'task__tag') {
+            // 获取内容
+            var parentDiv = divNode.parentNode.parentNode;
+            var divType = divNode.classList[1].split("--")[1];
+            var chineseType;
+            if (divType === 'unfinish') {
+                chineseType = '未完成';
+            }
+            else if (divType === 'done') {
+                chineseType = '已完成';
+            }
+            else if (divType === 'doing') {
+                chineseType = '进行中';
+            }
+            else {
+                chineseType = '计划中';
+            }
+            
+            var year = parentDiv.querySelector(".year");
+            var time = parentDiv.querySelector(".time");
+            // 进行显示
+            var divContent = parentDiv.getElementsByTagName("p");      // 任务内容
+            divContent = divContent[0].textContent;
+            previewDivTitle.textContent = divNode.textContent;;
+            previewDivState.textContent = chineseType;
+            previewDivContent.textContent = divContent;
+            previewDivTime.textContent = year.innerText + " - " + time.innerText.split(" ")[0];
+
+            // 设定位置
+            taskPreview.style.display = 'block';
+            var left = event.clientX - taskPreview.offsetWidth -30;
+            if (left < 0) {
+                left = event.clientX + 30 ;
+            }
+            var top = event.clientY;
+            if (event.clientY + taskPreview.offsetHeight > window.innerHeight) {
+                top = event.clientY - taskPreview.offsetHeight / 2;
+                left = left - 20;
+            }
+            taskPreview.style.top = top + 30 + "px";
+            taskPreview.style.left = left + "px";
+            var divHeight = previewDivContent.offsetHeight;
+            taskPreview.style.height = divHeight + 220+  "px";
+        }
+    }
     // 更新数据
     async function updateDiv() {
         var taskTitle = title.value;     // 任务名称
@@ -518,8 +545,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
                             <button class='task__options'> </button> </div>\
                             <p>"+ task.description + "</p> \
                             <div class='task__stats'>\
-                            <span>"+ createTime.year + "-" + (createTime.month + 1) + "-" + createTime.day + "</time></span>\
-                            <span>"+ createTime.hour + ":" + createTime.min + ":" + createTime.sec + " create </span> <span class='task__owner'></span></div>";
+                            <span class='year'>"+ createTime.year + "-" + (createTime.month + 1) + "-" + createTime.day + "</span>\
+                            <span class='time'>"+ createTime.hour + ":" + createTime.min + ":" + createTime.sec + " create </span> <span class='task__owner'></span></div>";
         
         // 将整个 div 结构添加到页面中的某个容器元素中
         var unfinish = document.getElementById("project-unfinish");
