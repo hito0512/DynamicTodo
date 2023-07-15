@@ -104,6 +104,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
         // 创建结束后选项卡关闭
         taskSetting.classList.remove('visible');
         aside.classList.remove('visible');
+        title.value = '';
+        content.value = '';
     });
 
     // 创建任务
@@ -113,6 +115,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
             // 创建结束后选项卡关闭
             taskSetting.classList.remove('visible');
             aside.classList.remove('visible');
+            title.value = '';
+            content.value = '';
         }
     });
 
@@ -511,7 +515,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         };
         // 创建一个任务div
         createTaskDiv(task, type,createTime);
-        
+        // console.log('-- ' + beautify(task));
         var result = await getBlockInfo();
         await updateDivData(result, task, type, false, createTime);
 
