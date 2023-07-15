@@ -353,13 +353,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     // 数据保存
     async function updateDivData(result, task, type, remove, createTime) {
-        // console.log("blockAttrs: " + beautify(result))
+        // console.log("删除前: " + beautify(result))
+        // 如果更新的话，首先删除已经存在的数据，然后重新添加
         if (remove) {
-            // 如果更新的话，首先删除已经存在的数据，然后重新添加
             createTime = await removeData(result);
+            // 重新获取数据
+            var result = await getBlockInfo();
         }
+
         // 打包数据
-        // var task = { [taskTitle]: taskContent };
         var data = Object.assign({}, task, createTime);
         // 转为字符串
         data = JSON.stringify(data);
@@ -392,7 +394,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     async function removeData(result) {
         if (currentUpdateDiv != null) {
             var parentDiv = currentUpdateDiv.parentNode.parentNode;    // div.task
-            var Title = parentDiv.querySelector(".task__tag");      // 任务名称
+            var Title = parentDiv.querySelector(".task__tag");         // 任务名称
             var newContent = parentDiv.getElementsByTagName("p");      // 任务内容
             var oldTaskTypeAll = Title.classList[1];                   // 原始任务类型
             var oldTaskType = oldTaskTypeAll.split("--")[1];
