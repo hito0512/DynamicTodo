@@ -71,7 +71,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
     initSys().then(r => {console.log(' Todo Task 初始化完成!! '); });
 
     // 打开增加任务面板
-    // var btn_panel = document.getElementById("appendTask");
     var aside = document.getElementById("addTask");   // div
     var taskSetting = document.getElementById('taskSetting');
     var addbtn = document.getElementById("submit");
@@ -101,11 +100,20 @@ document.addEventListener('DOMContentLoaded', (event) => {
     // 更新任务
     update.addEventListener('click', async function() {
         await updateDiv();
+
+        // 创建结束后选项卡关闭
+        taskSetting.classList.remove('visible');
+        aside.classList.remove('visible');
     });
 
     // 创建任务
     addbtn.addEventListener('click', async function () {
-        await addNewTask();
+        var flag = await addNewTask();
+        if (flag) {
+            // 创建结束后选项卡关闭
+            taskSetting.classList.remove('visible');
+            aside.classList.remove('visible');
+        }
     });
 
     // 对任务的各种编辑
@@ -378,7 +386,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
             // 先转换为对象
             var preDictAll = JSON.parse(preStr);
             var curStr = JSON.stringify(preDictAll);
-            var stem = curStr.match(/\[(.*?)\]/)[1];
+            // var stem = curStr.match(/\[(.*?)\]/)[1];
+            var stem = curStr.substring(1, curStr.length - 1);
             if (stem === '') {
                 curStr = '[' + data + ']';
             }
@@ -422,7 +431,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
             });
 
             var curStr = JSON.stringify(oldDictAll);
-            var stem = curStr.match(/\[(.*?)\]/)[1];
+            // var stem = curStr.match(/\[(.*?)\]/)[1];
+            var stem = curStr.substring(1, curStr.length - 1);
             curStr = '[' + stem + ']';
             // 重新保存
             await setBAttrs([oldTaskType], curStr);//.then(r => { });
@@ -488,7 +498,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         // 不允许空任务
         if (taskTitle === '' || taskContent === '') {
             content.value = 'Title or Content cannot be empty!';
-            return;
+            return false;
         }
         
         // 获取当前时间
@@ -499,13 +509,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
             title      : taskTitle,
             description: taskContent,
         };
-
         // 创建一个任务div
         createTaskDiv(task, type,createTime);
-
         
         var result = await getBlockInfo();
         await updateDivData(result, task, type, false, createTime);
+
+        return true;
     }
 
     function taskCreateTime() {
