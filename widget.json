@@ -2,7 +2,7 @@
 	"name": "DynamicTodo",
 	"author": "hito0512",
 	"url": "https://github.com/hito0512/DynamicTodo",
-	"version": "0.1.3",
+	"version": "0.1.4",
 	"minAppVersion": "2.9.3",
 	"displayName": {
 	  "default": "DynamicTodoList",
@@ -10,7 +10,7 @@
 	},
 	"description": {
 	  "default": "This is a dynamically updating todo list.",
-	  "zh_CN": "这是一个动态更新的 todo list。[注意]目前只有基本功能。"
+	  "zh_CN": "这是一个动态更新的 todo list。"
 	},
 	"readme": {
 	  "default": "README.md",
