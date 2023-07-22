@@ -131,16 +131,22 @@ document.addEventListener('DOMContentLoaded', (event) => {
         // 【按钮功能】：重新编辑按钮,删除按钮增加功能
         buttonFunc(event);
         
+        // 关闭预览
+        closeTaskPreviewDiv(event);
     });
 
     // -----------------------  任务预览  ----------------
     document.addEventListener("mouseover", function (event) {
         dataPreview(event);
     });
+
     // 关闭任务预览
-    document.addEventListener("mouseout", function () {
+    taskPreview.addEventListener("mouseleave", function () {
         taskPreview.style.display = 'none';
     });
+    // document.addEventListener("mouseout", function () {
+    //     taskPreview.style.display = 'none';
+    // });
 
     
     /*- ------------------ 其他函数 ------------------------- */
@@ -282,6 +288,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
             aside.classList.remove('visible');
         }
     }
+
+    // 关闭任务预览
+    function closeTaskPreviewDiv(event) {
+        if ( !taskPreview.contains(event.target) ) {
+            taskPreview.style.display = 'none';
+        }
+    }
+
     // 创建和更新切换
     function toggleDiv(flag) {
         if (!taskSetting.classList.contains('visible')) {

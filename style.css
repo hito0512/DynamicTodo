@@ -361,6 +361,15 @@ pre {
   margin-top: 3px; /* 取消有序列表顶部外边距 */
   /* margin-bottom: 1rem; 设置有序列表底部外边距为1rem */
 }
+
+.tag-Preview ul{
+  padding-left: 18px;
+  list-style-type: circle;
+  font-family: "Times New Roman", sans-serif;
+  margin-top: 3px; /* 取消有序列表顶部外边距 */
+}
+
+
 .tag-Preview li{
   margin-top: 7px; /*调整列表项之间的间距*/
   /* margin-left: 17px; */
