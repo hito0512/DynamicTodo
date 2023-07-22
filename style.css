@@ -54,25 +54,33 @@ pre {
   }
 
 .project-column-heading {
-    margin-bottom: 1rem;
+  margin-bottom: 1rem;
+  height: 30px;
+  padding-left: 10px;
+  border-radius: 8px;
+    /* margin-bottom: 1rem;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-between; */
 }
 .project-column-heading__title {
     font-size: 20px;
-  }
-/* .addTaskCard{ */
-    /* position: relative; */
-    /* display: ab; */
-    /* display: block;*/
-    /* height: 30px;
-    width: 100%; */
-    /* left: 0; */
-    /* position: absolute; */
-    /* top: 50px;  */
-    /* left: 50px;  */
-  /* } */
+}
+#project-done .project-column-heading{
+    background-color: #ccf2c8;
+}
+#project-doing .project-column-heading{
+    background-color: #fee6ac;
+}
+#project-unfinish .project-column-heading{
+    background-color: #fce7e9;
+}
+#project-todo .project-column-heading{
+    background-color: #cfddfe;
+}
+.addTaskCard{ 
+    transform: translateY(40px);
+} 
 .project-column-heading__options {
     position: relative;
     width: 30px;
@@ -100,22 +108,42 @@ pre {
 
 
 .task {
+  opacity: 0.5; /*初始时透明度为0 */
     /* cursor: move; */
     background-color: var(--white);
     padding: 1rem;
     border-radius: 8px;
     width: 100%;
-    box-shadow: rgba(36, 35, 35, 0.1) 0px 4px 8px 0px;
+    /* box-shadow: rgba(36, 35, 35, 0.1) 0px 4px 8px 0px; */
+    box-shadow: 8px -1rem  1rem rgba(36, 35, 35, 0.1);
     margin-bottom: 1rem;
     border: 3px dashed transparent;
     justify-content: space-between;
     /* display: flex;
     flex-wrap: wrap; */
-
+    transition: .5s;
+    clear: both;
+    position: relative;
+    border: #c4cad3;
+    border: 1px solid rgb(225, 215, 215);
+    
   }
+
+.task:focus-within~.ctaskard, .task:hover~.task {
+    transform: translateY(20px);
+  }
+
 .task:hover {
-    box-shadow: rgba(87, 81, 81, 0.405) 0px 5px 8px 0px;
+    /* box-shadow: rgba(87, 81, 81, 0.405) 0px 5px 8px 0px; */
     /* border-color: rgba(162, 179, 207, 0.2) !important; */
+    background-color: var(--bg);
+    transform: translateZ(50px);
+    transform: translateX(-1rem);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+    opacity: 1;
+}
+.task:not(:first-child) {
+  margin-bottom: -20px;
 }
 
 .task p {
@@ -132,15 +160,16 @@ pre {
 .task__tag {
     border-radius: 100px;
     padding: 2px 13px;
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: bold;
   }
 .task__tag--unfinish {
     color: var(--tag-4-text);
     background-color: var(--tag-4);
   }
 .task__tag--doing {
-    color: var(--tag-3-text);
-    background-color: var(--tag-3);
+  color: #865f04;
+  background-color: #f9e8bf ;
   }
 .task__tag--done {
     color: var(--tag-2-text);
@@ -299,9 +328,66 @@ pre {
   color: rgb(180, 180, 180);
   line-height: 1.2rem;
 }
-.pc{
+/* .pc{
   margin-top: 1rem;
+} */
+/* .pc pre {
+  margin: 0; 
+} */
+.pcontent{
+  padding-bottom: 20px;
 }
+ .pcontent p{
+  margin-top: 1rem;
+  /* margin-top: 0; 取消标题顶部外边距 */
+  /* list-style-type: none; */
+  /* padding-inline-start: 0; */
+  /* margin-inline-start: 0; */
+  /* margin: 0;  */
+  /* padding: 0; 取消段落的内边距 */
+  line-height: 1.5; 
+}
+
+.tag-Preview ol{
+  /* display: inline-block; */
+  padding-left: 18px;
+  list-style-type: decimal;
+  font-family: "Times New Roman", sans-serif;
+  /* padding-inline-start: 0; */
+  /* margin-inline-start: 0; */
+  /* margin: 0; 
+  padding: 0; 
+  line-height: 1.5;  */
+  margin-top: 3px; /* 取消有序列表顶部外边距 */
+  /* margin-bottom: 1rem; 设置有序列表底部外边距为1rem */
+}
+.tag-Preview li{
+  margin-top: 7px; /*调整列表项之间的间距*/
+  /* margin-left: 17px; */
+  /* padding-left: 1.5em; */
+  position: relative;
+}
+/* .tag-Preview input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+} */
+
+/* .tag-Preview li::before {
+  margin-top: 4px;
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 13px;
+  height: 13px;
+  border: 1px solid #000;
+  background-color: #fff;
+}
+.tag-Preview input[type="checkbox"]:checked + li::before {
+  content: '✔';
+} */
+
 #taskname {
     width: 250px;
     height: 30px;

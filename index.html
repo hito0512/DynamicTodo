@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <!--导入jQuery脚本-->
     <script src="static/jquery.min.js"></script>
+    <script src="static/marked_4.1.0_marked.min.js"></script>
     <script src="script/style.js" type="module"></script>
 </head>
 <body>
@@ -19,7 +20,7 @@
                 <div class='project-column' id="project-unfinish">
                     <!-- 标题 -->
                     <div class='project-column-heading'>
-                        <h3 class='project-column-heading__title'>未完成</h3>
+                        <h3 class='project-column-heading__title'> 👎 未完成</h3>
                         <!-- <button class='project-column-heading__options'></button> -->
                     </div>
                     <!-- 内容 -->
@@ -33,7 +34,7 @@
                 <div class='project-column' id="project-doing">
                     <!-- 标题 -->
                     <div class='project-column-heading'>
-                        <h3 class='project-column-heading__title'>进行中</h3>
+                        <h3 class='project-column-heading__title'> 🚴 进行中</h3>
                         <!-- <button class='project-column-heading__options'>  </button> -->
                     </div>
                     <!-- 内容 -->
@@ -46,7 +47,7 @@
                 <!-- 第三列 -->
                 <div class='project-column' id="project-done">
                     <div class='project-column-heading'>
-                        <h3 class='project-column-heading__title'>已完成</h3>
+                        <h3 class='project-column-heading__title'> 💯 已完成</h3>
                         <!-- <button class='project-column-heading__options'></button> -->
                     </div>
                     
@@ -58,7 +59,7 @@
                 <!-- 第四列 -->
                 <div class='project-column' id="project-todo">
                     <div class='project-column-heading'>
-                        <h3 class='project-column-heading__title'>计划中</h3>
+                        <h3 class='project-column-heading__title'> 📖 计划中</h3>
                         <!-- <button class='project-column-heading__options' id="appendTask">+</button> -->
                     </div>
 
@@ -145,9 +146,9 @@
             <div class="tag-Preview">
                 <p> 
                     <span class="pt" id="pt">任务描述：</span>
-                    <div class="pc" >
-                        <pre class="pcontent" id="pcontent" ></pre>
-                    </div>
+                    <!-- <div class="pc" > -->
+                        <div class="pcontent" id="pcontent" ></div>
+                    <!-- </div> -->
                 </p>
             </div>
         </div>

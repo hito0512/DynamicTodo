@@ -213,7 +213,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
             divContent = divContent[0].textContent;
             previewDivTitle.textContent = divNode.textContent;;
             previewDivState.textContent = chineseType;
-            previewDivContent.textContent = divContent;
+            // markdown
+            divContent = marked.parse(divContent);
+            // previewDivContent.textContent = divContent;
+            previewDivContent.innerHTML = divContent;
             previewDivTime.textContent = year.innerText + " - " + time.innerText.split(" ")[0];
 
             // 设定位置
