@@ -41,8 +41,7 @@ pre {
 .project {
     padding: 2rem;
     width: 95%;
-    /* max-width: 100vw;  */
-    display: inline-block;
+    display: block;
   }
 
 .project-tasks {
@@ -58,10 +57,6 @@ pre {
   height: 30px;
   padding-left: 10px;
   border-radius: 8px;
-    /* margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between; */
 }
 .project-column-heading__title {
     font-size: 20px;
@@ -79,10 +74,10 @@ pre {
     background-color: #cfddfe;
 }
 .addTaskCard{ 
-    transform: translateY(40px);
+    transform: translateY(35px);
 } 
 .project-column-heading__options {
-    position: relative;
+    position: absolute;
     width: 30px;
     height: 30px;
     background: transparent;
@@ -92,7 +87,6 @@ pre {
     margin: 0 0.2rem;
     border: 0;
     outline: 0;
-    will-change: transform;
     border-radius: 100rem;
     left: 0;
 }
@@ -108,34 +102,25 @@ pre {
 
 
 .task {
-  opacity: 0.5; /*初始时透明度为0 */
-    /* cursor: move; */
+  opacity: 0.7; /*初始时透明度为0 */
     background-color: var(--white);
     padding: 1rem;
     border-radius: 8px;
     width: 100%;
-    /* box-shadow: rgba(36, 35, 35, 0.1) 0px 4px 8px 0px; */
-    box-shadow: 8px -1rem  1rem rgba(36, 35, 35, 0.1);
+    height: 110px;
+    box-shadow: 8px -1rem  1rem rgba(36, 35, 35, 0.16);
     margin-bottom: 1rem;
-    border: 3px dashed transparent;
-    justify-content: space-between;
-    /* display: flex;
-    flex-wrap: wrap; */
     transition: .5s;
-    clear: both;
     position: relative;
-    border: #c4cad3;
     border: 1px solid rgb(225, 215, 215);
     
   }
 
-.task:focus-within~.ctaskard, .task:hover~.task {
+.task:focus-within~.task, .task:hover~.task {
     transform: translateY(20px);
   }
 
 .task:hover {
-    /* box-shadow: rgba(87, 81, 81, 0.405) 0px 5px 8px 0px; */
-    /* border-color: rgba(162, 179, 207, 0.2) !important; */
     background-color: var(--bg);
     transform: translateZ(50px);
     transform: translateX(-1rem);
@@ -147,17 +132,20 @@ pre {
 }
 
 .task p {
-    /* width: 300px;  */
-    width: 100%;
+    position: absolute;
+    top: 40px;
+    left: 20px;
+    width: 90%;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
     font-size: 15px;
-    margin: 1.2rem 0;
-    
+    margin-top: 10px;
+    margin-bottom: 5px;
   }
 
 .task__tag {
+    position: absolute;
     border-radius: 100px;
     padding: 2px 13px;
     font-size: 14px;
@@ -181,15 +169,19 @@ pre {
     ;
   }
 .task__tags {
+    position: relative;
     width: 100%;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-  }
+}
 
 .task__options {
+    position: absolute;
+    top: 5px;
+    right: 10px;
     width: 15px;
     height: 15px;
+
     background-image: url("img/setting.png");
     background-size: contain;
     border: 0px none var(--light-grey);
@@ -203,8 +195,11 @@ pre {
     transform: scale(0.9);
 }
 .task__stats {
-    position: relative;
-    width: 100%;
+    position: absolute;
+    top: 80px;
+    left: 15px;
+ 
+    width: 92%;
     color: var(--light-grey);
     font-size: 12px;
   }
@@ -224,12 +219,8 @@ pre {
     top: 200px;
     float: left;
     position: absolute;
-    /* margin-top: 20%; */
-    /* margin-top: 0; */
     display: none;
     cursor: move;
-    /* margin-left: 30%; */
-    /* background-color: var(--bg); */
 }
 .addTask.visible{
   display: block;
@@ -238,16 +229,10 @@ pre {
     padding: 1rem;
     background-color: var(--white);
     border-radius: 10px;
-    /* opacity: 0; 初始时透明度为0 */
-    /* height: 0; 初始时高度为0 */
-    overflow: hidden; /* 隐藏溢出的内容 */
-    /* transition: opacity 0.5s ease, height 0.5s ease; 添加过渡效果 */
-    /* transition: height 1s ease; */
+    overflow: hidden; 
     display: none;
 }
 .task-setting.visible {
-  /* opacity: 1; 显示时完全透明 */
-  /* height: auto; 根据内容自动调整高度 */
   display: inline-block;
 }
 #submit_task{
@@ -317,9 +302,6 @@ pre {
     border-width: 2px;
 }
 
-/* .taskPreview{
-  line-height: 1.5;
-} */
 
 .tag-Preview{
   margin: 1rem 0;
@@ -328,74 +310,38 @@ pre {
   color: rgb(180, 180, 180);
   line-height: 1.2rem;
 }
-/* .pc{
-  margin-top: 1rem;
-} */
-/* .pc pre {
-  margin: 0; 
-} */
+
 .pcontent{
   padding-bottom: 20px;
 }
+.pcontent h1,h2,h3,h4,h5,h6{
+  margin-top: 5px;
+  margin-bottom: 3px;
+}
  .pcontent p{
-  margin-top: 1rem;
-  /* margin-top: 0; 取消标题顶部外边距 */
-  /* list-style-type: none; */
-  /* padding-inline-start: 0; */
-  /* margin-inline-start: 0; */
-  /* margin: 0;  */
-  /* padding: 0; 取消段落的内边距 */
+  margin-top: 5px;
   line-height: 1.5; 
 }
 
 .tag-Preview ol{
-  /* display: inline-block; */
   padding-left: 18px;
   list-style-type: decimal;
   font-family: "Times New Roman", sans-serif;
-  /* padding-inline-start: 0; */
-  /* margin-inline-start: 0; */
-  /* margin: 0; 
-  padding: 0; 
-  line-height: 1.5;  */
-  margin-top: 3px; /* 取消有序列表顶部外边距 */
-  /* margin-bottom: 1rem; 设置有序列表底部外边距为1rem */
+  margin-top: 3px; 
 }
 
 .tag-Preview ul{
   padding-left: 18px;
   list-style-type: circle;
   font-family: "Times New Roman", sans-serif;
-  margin-top: 3px; /* 取消有序列表顶部外边距 */
+  margin-top: 3px; 
 }
 
 
 .tag-Preview li{
-  margin-top: 7px; /*调整列表项之间的间距*/
-  /* margin-left: 17px; */
-  /* padding-left: 1.5em; */
+  margin-top: 7px; 
   position: relative;
 }
-/* .tag-Preview input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-} */
-
-/* .tag-Preview li::before {
-  margin-top: 4px;
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 13px;
-  height: 13px;
-  border: 1px solid #000;
-  background-color: #fff;
-}
-.tag-Preview input[type="checkbox"]:checked + li::before {
-  content: '✔';
-} */
 
 #taskname {
     width: 250px;
@@ -408,7 +354,6 @@ pre {
     border-color: #08a0f7;
     border-width: 2px;
 }
-  /* 任务描述 */
 #taskcontent {
     width: 250px;
     height: 220px;
@@ -421,19 +366,18 @@ pre {
     border-color: #08a0f7;
     border-width: 2px;
   }
-/* --------------------------- 任务编辑 --------------------- */
 .editPanel{
-    /* cursor: pointer; */
+  margin:0;
     background-color: var(--white);
     width: 60px;
     height: 60px;
     box-shadow: rgba(99, 99, 99, 0.3) 0px 2px 8px 0px;
     border: 3px dashed transparent;
-    /* display: flex; */
+    display: block;
     flex-direction: column;
-    left: 80%;
-    top: -65px;
-    float: left;
+    top: 35px;
+    right: 10px;
+    float: right;
     position: relative;
     align-items: center;
     border-radius: 10px;
@@ -446,9 +390,27 @@ pre {
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
   }
 
+.linkButton{
+  border-radius: 5px;
+  background-color: #ffffff;
+  height: 35px;
+  margin-top: 5px;
+  border: none;
+  transition: background-color 0.1s;
+  color: #08a0f7;
+  display: inline-block;
+  font-size: 16px;
+}
+.linkButton:hover{
+  transform: scale(1.05);
+}
+.linkButton:active {
+  transform: scale(0.95);
+}
+
+
 .edbutton{
     border-radius: 5px;
-    /* background-color: var(--white); */
     background-color: #ffffff;
     width: 100%;
     height: 25px;
@@ -463,8 +425,8 @@ pre {
   width: 15px;
   height: 15px;
   background-image: url("img/edit.png");
-  margin-right: 5px; /* 调整图标和文本之间的间距 */
-  /* background-color: transparent; */
+  margin-right: 5px; 
+
   opacity : '0.5';
 }
 .delbutton{
@@ -483,17 +445,14 @@ pre {
   width: 15px;
   height: 15px;
   background-image: url("img/del.png");
-  margin-right: 5px; /* 调整图标和文本之间的间距 */
-  /* background-color: transparent; */
+  margin-right: 5px; 
   opacity : '0.5';
 }
 .edbutton:hover{
-    /* background-color: #e0f0ea72; */
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
   
 .delbutton:hover{
-    /* background-color: #f4797942; */
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 .delbutton:active {
@@ -502,7 +461,6 @@ pre {
 .edbutton:active {
   transform: scale(0.95);
 }
-/* --------------------------- 任务预览 --------------------- */
 .taskPreview{
     height: 400px;
     width: 350px;
@@ -515,14 +473,14 @@ pre {
     flex-direction: column;
     transition: .2s;
     margin: 0;
-    /* float: left; */
     scroll-snap-align: start;
-    /* clear: both; */
     position: absolute;
 }
-/* --------------------------- 当页面缩小后的变化 ------------- */
 @media only screen and (max-width: 900px) {
     .project-tasks {
       grid-template-columns: 50%;  
+    }
+    #project-doing, #project-done, #project-todo{
+      margin-top: 80px;
     }
   }
