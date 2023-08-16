@@ -47,7 +47,8 @@ pre {
 
 .project-tasks {
     display: grid;
-    grid-template-columns: repeat(4, 25%);
+    /* grid-template-columns: repeat(4, 25%); */
+    grid-template-columns: repeat(4, minmax(25%, 1fr));
     
     width: 100%;
     grid-column-gap: 1.5rem;
@@ -556,9 +557,9 @@ pre {
     position: absolute;
 }
 /* --------------------------- 当页面缩小后的变化 ------------- */
-@media only screen and (max-width: 900px) {
+@media only screen and (max-width: 550px) {
     .project-tasks {
-      grid-template-columns: 50%;  
+      grid-template-columns: 75%;  
     }
     #project-doing, #project-done, #project-todo{
       margin-top: 80px;
