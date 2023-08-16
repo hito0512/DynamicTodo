@@ -557,7 +557,7 @@ pre {
     position: absolute;
 }
 /* --------------------------- 当页面缩小后的变化 ------------- */
-@media only screen and (max-width: 550px) {
+@media only screen and (max-width: 650px) {
     .project-tasks {
       grid-template-columns: 85%;  
     }
