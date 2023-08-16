@@ -41,12 +41,14 @@ pre {
 .project {
     padding: 2rem;
     width: 95%;
+    /* max-width: 100vw;  */
     display: block;
   }
 
 .project-tasks {
     display: grid;
-    grid-template-columns: repeat(4, 25%);
+    /* grid-template-columns: repeat(4, 25%); */
+    grid-template-columns: repeat(4, minmax(25%, 1fr));
     
     width: 100%;
     grid-column-gap: 1.5rem;
@@ -57,6 +59,10 @@ pre {
   height: 30px;
   padding-left: 10px;
   border-radius: 8px;
+    /* margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; */
 }
 .project-column-heading__title {
     font-size: 20px;
@@ -74,6 +80,8 @@ pre {
     background-color: #cfddfe;
 }
 .addTaskCard{ 
+  /* margin-top: 40px;
+  position: relative; */
     transform: translateY(35px);
 } 
 .project-column-heading__options {
@@ -87,6 +95,7 @@ pre {
     margin: 0 0.2rem;
     border: 0;
     outline: 0;
+    /* will-change: transform; */
     border-radius: 100rem;
     left: 0;
 }
@@ -103,14 +112,20 @@ pre {
 
 .task {
   opacity: 0.7; /*初始时透明度为0 */
+    /* cursor: move; */
     background-color: var(--white);
     padding: 1rem;
     border-radius: 8px;
     width: 100%;
     height: 110px;
+    /* box-shadow: rgba(36, 35, 35, 0.1) 0px 4px 8px 0px; */
     box-shadow: 8px -1rem  1rem rgba(36, 35, 35, 0.16);
     margin-bottom: 1rem;
+    /* justify-content: space-between; */
+    /* display: flex;
+    flex-wrap: wrap; */
     transition: .5s;
+    /* clear: both; */
     position: relative;
     border: 1px solid rgb(225, 215, 215);
     
@@ -121,6 +136,8 @@ pre {
   }
 
 .task:hover {
+    /* box-shadow: rgba(87, 81, 81, 0.405) 0px 5px 8px 0px; */
+    /* border-color: rgba(162, 179, 207, 0.2) !important; */
     background-color: var(--bg);
     transform: translateZ(50px);
     transform: translateX(-1rem);
@@ -172,6 +189,7 @@ pre {
     position: relative;
     width: 100%;
     display: flex;
+    /* align-items: center; */
     justify-content: space-between;
 }
 
@@ -219,8 +237,12 @@ pre {
     top: 200px;
     float: left;
     position: absolute;
+    /* margin-top: 20%; */
+    /* margin-top: 0; */
     display: none;
     cursor: move;
+    /* margin-left: 30%; */
+    /* background-color: var(--bg); */
 }
 .addTask.visible{
   display: block;
@@ -229,10 +251,16 @@ pre {
     padding: 1rem;
     background-color: var(--white);
     border-radius: 10px;
-    overflow: hidden; 
+    /* opacity: 0; 初始时透明度为0 */
+    /* height: 0; 初始时高度为0 */
+    overflow: hidden; /* 隐藏溢出的内容 */
+    /* transition: opacity 0.5s ease, height 0.5s ease; 添加过渡效果 */
+    /* transition: height 1s ease; */
     display: none;
 }
 .task-setting.visible {
+  /* opacity: 1; 显示时完全透明 */
+  /* height: auto; 根据内容自动调整高度 */
   display: inline-block;
 }
 #submit_task{
@@ -302,6 +330,9 @@ pre {
     border-width: 2px;
 }
 
+/* .taskPreview{
+  line-height: 1.5;
+} */
 
 .tag-Preview{
   margin: 1rem 0;
@@ -310,7 +341,12 @@ pre {
   color: rgb(180, 180, 180);
   line-height: 1.2rem;
 }
-
+/* .pc{
+  margin-top: 1rem;
+} */
+/* .pc pre {
+  margin: 0; 
+} */
 .pcontent{
   padding-bottom: 20px;
 }
@@ -324,24 +360,53 @@ pre {
 }
 
 .tag-Preview ol{
+  /* display: inline-block; */
   padding-left: 18px;
   list-style-type: decimal;
   font-family: "Times New Roman", sans-serif;
-  margin-top: 3px; 
+  /* padding-inline-start: 0; */
+  /* margin-inline-start: 0; */
+  /* margin: 0; 
+  padding: 0; 
+  line-height: 1.5;  */
+  margin-top: 3px; /* 取消有序列表顶部外边距 */
+  /* margin-bottom: 1rem; 设置有序列表底部外边距为1rem */
 }
 
 .tag-Preview ul{
   padding-left: 18px;
   list-style-type: circle;
   font-family: "Times New Roman", sans-serif;
-  margin-top: 3px; 
+  margin-top: 3px; /* 取消有序列表顶部外边距 */
 }
 
 
 .tag-Preview li{
-  margin-top: 7px; 
+  margin-top: 7px; /*调整列表项之间的间距*/
+  /* margin-left: 17px; */
+  /* padding-left: 1.5em; */
   position: relative;
 }
+/* .tag-Preview input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+} */
+
+/* .tag-Preview li::before {
+  margin-top: 4px;
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 13px;
+  height: 13px;
+  border: 1px solid #000;
+  background-color: #fff;
+}
+.tag-Preview input[type="checkbox"]:checked + li::before {
+  content: '✔';
+} */
 
 #taskname {
     width: 250px;
@@ -354,6 +419,7 @@ pre {
     border-color: #08a0f7;
     border-width: 2px;
 }
+  /* 任务描述 */
 #taskcontent {
     width: 250px;
     height: 220px;
@@ -366,8 +432,10 @@ pre {
     border-color: #08a0f7;
     border-width: 2px;
   }
+/* --------------------------- 任务编辑 --------------------- */
 .editPanel{
   margin:0;
+    /* cursor: pointer; */
     background-color: var(--white);
     width: 60px;
     height: 60px;
@@ -375,6 +443,7 @@ pre {
     border: 3px dashed transparent;
     display: block;
     flex-direction: column;
+    /* left: 80%; */
     top: 35px;
     right: 10px;
     float: right;
@@ -395,13 +464,17 @@ pre {
   background-color: #ffffff;
   height: 35px;
   margin-top: 5px;
+  /* margin-bottom: 0.2rem; */
   border: none;
   transition: background-color 0.1s;
   color: #08a0f7;
   display: inline-block;
   font-size: 16px;
+  /* align-items: center; */
 }
 .linkButton:hover{
+  /* background-color: #f4797942; */
+  /* box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); */
   transform: scale(1.05);
 }
 .linkButton:active {
@@ -411,6 +484,7 @@ pre {
 
 .edbutton{
     border-radius: 5px;
+    /* background-color: var(--white); */
     background-color: #ffffff;
     width: 100%;
     height: 25px;
@@ -425,8 +499,8 @@ pre {
   width: 15px;
   height: 15px;
   background-image: url("img/edit.png");
-  margin-right: 5px; 
-
+  margin-right: 5px; /* 调整图标和文本之间的间距 */
+  /* background-color: transparent; */
   opacity : '0.5';
 }
 .delbutton{
@@ -445,14 +519,17 @@ pre {
   width: 15px;
   height: 15px;
   background-image: url("img/del.png");
-  margin-right: 5px; 
+  margin-right: 5px; /* 调整图标和文本之间的间距 */
+  /* background-color: transparent; */
   opacity : '0.5';
 }
 .edbutton:hover{
+    /* background-color: #e0f0ea72; */
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
   
 .delbutton:hover{
+    /* background-color: #f4797942; */
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 .delbutton:active {
@@ -461,6 +538,7 @@ pre {
 .edbutton:active {
   transform: scale(0.95);
 }
+/* --------------------------- 任务预览 --------------------- */
 .taskPreview{
     height: 400px;
     width: 350px;
@@ -473,12 +551,15 @@ pre {
     flex-direction: column;
     transition: .2s;
     margin: 0;
+    /* float: left; */
     scroll-snap-align: start;
+    /* clear: both; */
     position: absolute;
 }
-@media only screen and (max-width: 900px) {
+/* --------------------------- 当页面缩小后的变化 ------------- */
+@media only screen and (max-width: 650px) {
     .project-tasks {
-      grid-template-columns: 50%;  
+      grid-template-columns: 85%;  
     }
     #project-doing, #project-done, #project-todo{
       margin-top: 80px;
