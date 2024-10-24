@@ -1,12 +1,12 @@
 {
-	"name": "DynamicTodo",
+	"name": "DynamicTodoDev",
 	"author": "hito0512",
 	"url": "https://github.com/hito0512/DynamicTodo",
 	"version": "0.1.6",
 	"minAppVersion": "2.9.3",
 	"displayName": {
 	  "default": "DynamicTodoList",
-	  "zh_CN": "DynamicTodo"
+	  "zh_CN": "DynamicTodoDev"
 	},
 	"description": {
 	  "default": "This is a dynamically updating todo list.",
