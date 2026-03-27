@@ -9,7 +9,7 @@
     <!--导入jQuery脚本-->
     <script src="static/jquery.min.js"></script>
     <script src="static/marked_4.1.0_marked.min.js"></script>
-    <script src="script/style.js" type="module"></script>
+    <script src="script/main.js" type="module"></script>
 </head>
 <body>
     <div class="app">
@@ -26,7 +26,7 @@
                     <!-- 内容 -->
                     
                     <div class="addTaskCard">
-                        <button class='project-column-heading__options' id="appendTask">+</button>
+                        <button class='project-column-heading__options' data-old-id="appendTask">+</button>
                     </div>
                 </div>
 
@@ -40,7 +40,7 @@
                     <!-- 内容 -->
                     
                     <div class="addTaskCard">
-                        <button class='project-column-heading__options' id="appendTask">+</button>
+                        <button class='project-column-heading__options' data-old-id="appendTask">+</button>
                     </div>
                 </div>
 
@@ -52,7 +52,7 @@
                     </div>
                     
                     <div class="addTaskCard">
-                        <button class='project-column-heading__options' id="appendTask">+</button>
+                        <button class='project-column-heading__options' data-old-id="appendTask">+</button>
                     </div>
                 </div>
 
@@ -60,7 +60,7 @@
                 <div class='project-column' id="project-todo">
                     <div class='project-column-heading'>
                         <h3 class='project-column-heading__title'> 📖 计划中</h3>
-                        <!-- <button class='project-column-heading__options' id="appendTask">+</button> -->
+                        <!-- <button class='project-column-heading__options' data-old-id="appendTask">+</button> -->
                     </div>
 
                     <!-- 这是每个任务创建的模板 -->
@@ -79,7 +79,7 @@
                         </div>
                     </div> -->
                     <div class="addTaskCard">
-                        <button class='project-column-heading__options' id="appendTask" >+</button>
+                        <button class='project-column-heading__options' data-old-id="appendTask" >+</button>
                     </div>
                 </div>
 
@@ -125,31 +125,18 @@
         
         <!-- 任务预览 -->
         <div class="taskPreview" id="taskPreview">
-            <div class="tag-Preview">
-                <p> 
-                    <span class="pt" >任务名称：</span>
+            <div class="taskPreview__body">
+                <div class="tag-Preview tag-Preview--title">
                     <span class="ptitle" id="ptitle"></span>
-                </p>
-            </div>
-            <div class="tag-Preview">
-                <p> 
-                    <span class="pt">任务状态：</span>
+                </div>
+                <div class="tag-Preview tag-Preview--meta">
                     <span class="pstate" id="pstate"></span>
-                </p>
-            </div>
-            <div class="tag-Preview">
-                <p> 
-                    <span class="pt">创建时间：</span>
                     <span class="ptime" id="ptime"></span>
-                </p>
-            </div>
-            <div class="tag-Preview">
-                <p> 
-                    <span class="pt" id="pt">任务描述：</span>
-                    <!-- <div class="pc" > -->
-                        <div class="pcontent" id="pcontent" ></div>
-                    <!-- </div> -->
-                </p>
+                </div>
+                <div class="tag-Preview tag-Preview--desc">
+                    <span class="pt" id="pt">描述</span>
+                    <div class="pcontent" id="pcontent"></div>
+                </div>
             </div>
         </div>
     </div>
