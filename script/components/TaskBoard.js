@@ -27,6 +27,7 @@ class TaskBoard {
         onEditTask: (task) => this.handleEditTask(task),
         onDeleteTask: (taskId) => this.handleDeleteTask(taskId),
         onPreviewTask: (task, event) => this.handlePreviewTask(task, event),
+        onDragStart: () => this.handleDragStart(),
         getStatusText: (status) => this.taskStore.getStatusText(status),
         onStatusTextUpdate: (status, newText) => this.handleStatusTextUpdate(status, newText),
       });
@@ -150,6 +151,13 @@ class TaskBoard {
 
   handlePreviewTask(task, event) {
     this.taskPreview.show(task, event);
+  }
+
+  handleDragStart() {
+    // 立即隐藏预览，同时取消 pending 的防抖显示
+    if (this.taskPreview) {
+      this.taskPreview.immediateHide();
+    }
   }
 
   async handleFormSubmit(taskData) {

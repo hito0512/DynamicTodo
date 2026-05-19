@@ -155,6 +155,15 @@ class TaskPreview {
   }
 
   /**
+   * 立即隐藏预览（取消所有防抖，用于拖拽等场景）
+   */
+  immediateHide() {
+    this.showPreviewDebounced.cancel();
+    this.hidePreviewDebounced.cancel();
+    this.hidePreview();
+  }
+
+  /**
    * 立即隐藏预览
    */
   hidePreview() {

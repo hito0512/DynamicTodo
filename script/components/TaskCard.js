@@ -76,20 +76,19 @@ class TaskCard {
   }
 
   bindEvents() {
-    // 鼠标进入整张卡片时显示预览（排除操作按钮区）
-    this.element.addEventListener('mouseenter', (e) => {
-      this.onPreview(this.task, e);
-    });
-
-    // 鼠标移入操作按钮区域时取消预览
-    const actionsEl = this.element.querySelector('.task__actions');
-    if (actionsEl) {
-      actionsEl.addEventListener('mouseenter', () => {
+    // 仅在描述内容区悬停时显示预览，其他地方（标题、操作按钮、统计等）不触发
+    const descEl = this.element.querySelector('.task__description');
+    if (descEl) {
+      descEl.addEventListener('mouseenter', (e) => {
+        e.stopPropagation();
+        this.onPreview(this.task, e);
+      });
+      descEl.addEventListener('mouseleave', () => {
         this.onPreview(null);
       });
     }
 
-    // 鼠标离开整张卡片时隐藏预览
+    // 鼠标离开整张卡片时确保隐藏预览
     this.element.addEventListener('mouseleave', () => {
       this.onPreview(null);
     });
