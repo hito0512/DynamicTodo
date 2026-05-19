@@ -44,11 +44,9 @@ class TaskCard {
       ]),
       createElement('div', { className: 'task__description' }, ''),
       createElement('div', { className: 'task__stats' }, [
-        this.task.startDate
-          ? createElement('span', { className: 'task__date-range' },
-              `📅 ${formatDate(this.task.startDate, 'YYYY-MM-DD')}` +
-              (this.task.endDate ? ` ~ ${formatDate(this.task.endDate, 'MM-DD')}` : ''))
-          : createElement('span', {}, `📅 ${formatDate(this.task.createdAt, 'YYYY-MM-DD')}`),
+        createElement('span', { className: 'task__date-range' },
+            `📅 ${formatDate(this.task.startDate || this.task.createdAt, 'YYYY-MM-DD')}` +
+            (this.task.endDate ? ` ~ ${formatDate(this.task.endDate, 'MM-DD')}` : '')),
         createElement('span', {}, `🕐 ${formatDate(this.task.createdAt, 'HH:mm')}`),
       ]),
     ]);
@@ -245,9 +243,13 @@ class TaskCard {
 
   update(newTask) {
     this.task = newTask;
-    // 更新状态属性
-    this.element.setAttribute('data-status', this.task.status);
-    this.renderDescription();
+    const parent = this.element.parentNode;
+    const nextSibling = this.element.nextSibling;
+    this.destroy();
+    this.render();
+    if (parent) {
+      parent.insertBefore(this.element, nextSibling);
+    }
   }
 
   getElement() {

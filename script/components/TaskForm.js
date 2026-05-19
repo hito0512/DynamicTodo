@@ -10,6 +10,7 @@ function formatDateInput(timestamp) {
   const day = String(d.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
+
 import { validateTaskData } from '../utils/security.js';
 import { TASK_STATUS, STATUS_TEXT } from '../config/constants.js';
 
@@ -64,6 +65,7 @@ class TaskForm {
             type: 'date',
             id: 'taskstart',
             className: 'form-input',
+            max: formatDateInput(Date.now()),
           }),
         ]),
         createElement('div', { className: 'form-group' }, [
@@ -163,7 +165,7 @@ class TaskForm {
     this.element.querySelector('#taskname').value = '';
     this.element.querySelector('#taskcontent').value = '';
     this.element.querySelector('#taskType').value = defaultStatus;
-    this.element.querySelector('#taskstart').value = '';
+    this.element.querySelector('#taskstart').value = formatDateInput(Date.now());
     this.element.querySelector('#taskend').value = '';
 
     this.element.querySelector('#submit').style.display = '';
@@ -191,14 +193,14 @@ class TaskForm {
     if (task.startDate) {
       this.element.querySelector('#taskstart').value = formatDateInput(task.startDate);
     } else {
-      this.element.querySelector('#taskstart').value = '';
+      this.element.querySelector('#taskstart').value = formatDateInput(task.createdAt);
     }
     if (task.endDate) {
       this.element.querySelector('#taskend').value = formatDateInput(task.endDate);
     } else {
       this.element.querySelector('#taskend').value = '';
     }
-
+    
     this.element.querySelector('#submit').style.display = 'none';
     this.element.querySelector('#update').style.display = '';
     this.element.querySelector('.form-title').textContent = '编辑任务';
@@ -274,6 +276,7 @@ class TaskForm {
       title, description, status,
       startDate: startVal ? new Date(startVal).getTime() : Date.now(),
       endDate: endVal ? new Date(endVal).getTime() : null,
+      createdAt: Date.now(),
     };
 
     if (!validateTaskData(taskData)) {

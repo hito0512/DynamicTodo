@@ -214,7 +214,7 @@ class TaskBoard {
   getTaskYears() {
     const years = this.taskStore.tasks
       .filter(t => !t.archived)
-      .map(t => new Date(t.createdAt).getFullYear());
+      .map(t => new Date(t.startDate || t.createdAt).getFullYear());
     return [...new Set(years)].sort((a, b) => b - a);
   }
 
@@ -223,7 +223,7 @@ class TaskBoard {
     Object.values(TASK_STATUS).forEach(status => {
       let tasks = this.taskStore.getTasksByStatus(status);
       if (yearFilter) {
-        tasks = tasks.filter(t => new Date(t.createdAt).getFullYear() === yearFilter);
+        tasks = tasks.filter(t => new Date(t.startDate || t.createdAt).getFullYear() === yearFilter);
       }
       const column = this.columns.get(status);
       column.setTasks(tasks);
@@ -277,24 +277,9 @@ class TaskBoard {
   }
 
   async handleFormUpdate(taskId, updateData) {
-    const oldTask = this.taskStore.tasks.find(t => t.id === taskId);
-    if (!oldTask) return;
-
-    const oldStatus = oldTask.status;
-    const updatedTask = await this.taskStore.updateTask(taskId, updateData);
-
-    if (updatedTask) {
-      if (oldStatus === updatedTask.status) {
-        const column = this.columns.get(oldStatus);
-        column.updateTask(updatedTask);
-      } else {
-        const oldColumn = this.columns.get(oldStatus);
-        oldColumn.removeTask(taskId);
-        const newColumn = this.columns.get(updatedTask.status);
-        newColumn.addTask(updatedTask);
-      }
-      this.calendar.refresh();
-    }
+    await this.taskStore.updateTask(taskId, updateData);
+    this.renderAllTasks();
+    this.calendar.refresh();
   }
 
   getElement() { return this.element; }
@@ -349,7 +334,7 @@ class TaskBoard {
     const doneTasks = archivedTasks.filter(t => t.status !== 'unfinish');
 
     // ── 未完成归档区（按年选择）──
-    const unfinishYears = [...new Set(unfinishTasks.map(t => new Date(t.createdAt).getFullYear()))]
+    const unfinishYears = [...new Set(unfinishTasks.map(t => new Date(t.startDate || t.createdAt).getFullYear()))]
       .sort((a, b) => b - a);
 
     if (!this.selectedUnfinishYear || !unfinishYears.includes(this.selectedUnfinishYear)) {
@@ -393,7 +378,7 @@ class TaskBoard {
       ]),
       (() => {
         const filtered = unfinishTasks.filter(t =>
-          new Date(t.createdAt).getFullYear() === this.selectedUnfinishYear
+          new Date(t.startDate || t.createdAt).getFullYear() === this.selectedUnfinishYear
         );
         return filtered.length > 0
           ? createElement('div', {
@@ -407,7 +392,7 @@ class TaskBoard {
     panel.appendChild(unfinishSection);
 
     // ── 已完成归档区（按年选择）──
-    const years = [...new Set(doneTasks.map(t => new Date(t.createdAt).getFullYear()))]
+    const years = [...new Set(doneTasks.map(t => new Date(t.startDate || t.createdAt).getFullYear()))]
       .sort((a, b) => b - a);
 
     if (!this.selectedArchiveYear || !years.includes(this.selectedArchiveYear)) {
@@ -450,7 +435,7 @@ class TaskBoard {
     panel.appendChild(doneHeader);
 
     const filtered = doneTasks.filter(t =>
-      new Date(t.createdAt).getFullYear() === this.selectedArchiveYear
+      new Date(t.startDate || t.createdAt).getFullYear() === this.selectedArchiveYear
     );
 
     if (filtered.length > 0) {
@@ -487,7 +472,7 @@ class TaskBoard {
         }, task.title),
         createElement('div', {
           style: { fontSize: '12px', color: '#94a3b8', marginTop: '3px' },
-        }, `状态: ${this.taskStore.getStatusText(task.status)} · 创建: ${new Date(task.createdAt).toLocaleDateString()}`),
+        }, `状态: ${this.taskStore.getStatusText(task.status)} · 创建: ${new Date(task.startDate || task.createdAt).toLocaleDateString()}`),
       ]),
       createElement('button', {
         style: {
