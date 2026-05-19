@@ -17,6 +17,7 @@ class TaskBoard {
     this.calendar = null;
     this.element = null;
     this.activeView = 'board';
+    this.boardYear = null; // null = 全部
     this.init();
   }
 
@@ -118,11 +119,12 @@ class TaskBoard {
       // 看板内容区
       createElement('div', {
         className: 'view-content' + (this.activeView === 'board' ? '' : ' view-content--hidden'),
-      },
+      }, [
+        createElement('div', { className: 'board-toolbar', style: { padding: '12px 20px 0', display: 'flex', alignItems: 'center', gap: '8px' } }),
         createElement('div', { className: 'project-tasks' },
           Array.from(this.columns.values()).map(column => column.getElement())
         )
-      ),
+      ]),
       // 日历内容区
       createElement('div', {
         className: 'view-content' + (this.activeView === 'calendar' ? '' : ' view-content--hidden'),
@@ -168,13 +170,61 @@ class TaskBoard {
 
   async loadTasks() {
     await this.taskStore.load();
+    this.refreshBoardToolbar();
     this.renderAllTasks();
     this.calendar.refresh();
   }
 
+  refreshBoardToolbar() {
+    const years = this.getTaskYears();
+    const container = this.element?.querySelector('.board-toolbar');
+    if (!container) return;
+
+    while (container.firstChild) container.removeChild(container.firstChild);
+
+    if (!this.boardYear || (years.length > 0 && !years.includes(this.boardYear))) {
+      this.boardYear = years[0] || null;
+    }
+
+    container.appendChild(
+      createElement('span', { style: { fontSize: '14px', color: '#64748b' } }, '📅 按年筛选')
+    );
+    container.appendChild(
+      createElement('select', {
+        style: {
+          padding: '4px 10px', border: '1px solid #e2e8f0', borderRadius: '6px',
+          fontSize: '14px', background: 'white', cursor: 'pointer',
+        },
+        onchange: (e) => {
+          this.boardYear = e.target.value ? parseInt(e.target.value) : null;
+          this.renderAllTasks();
+        },
+      }, [
+        createElement('option', { value: '', selected: this.boardYear === null }, '全部'),
+        ...years.map(y =>
+          createElement('option', {
+            value: y,
+            selected: y === this.boardYear,
+          }, `${y} 年`)
+        ),
+      ])
+    );
+  }
+
+  getTaskYears() {
+    const years = this.taskStore.tasks
+      .filter(t => !t.archived)
+      .map(t => new Date(t.createdAt).getFullYear());
+    return [...new Set(years)].sort((a, b) => b - a);
+  }
+
   renderAllTasks() {
+    const yearFilter = this.boardYear;
     Object.values(TASK_STATUS).forEach(status => {
-      const tasks = this.taskStore.getTasksByStatus(status);
+      let tasks = this.taskStore.getTasksByStatus(status);
+      if (yearFilter) {
+        tasks = tasks.filter(t => new Date(t.createdAt).getFullYear() === yearFilter);
+      }
       const column = this.columns.get(status);
       column.setTasks(tasks);
     });
@@ -279,6 +329,7 @@ class TaskBoard {
   async handleRestoreTask(taskId) {
     const success = await this.taskStore.restoreTask(taskId);
     if (success) {
+      this.refreshBoardToolbar();
       this.renderAllTasks();
       this.calendar.refresh();
       this.renderArchivePanel();
@@ -483,6 +534,7 @@ class TaskBoard {
         const data = JSON.parse(text);
         const success = await this.taskStore.importData(data);
         if (success) {
+          this.refreshBoardToolbar();
           this.renderAllTasks();
           this.calendar.refresh();
         } else {
