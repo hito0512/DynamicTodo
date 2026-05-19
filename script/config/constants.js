@@ -45,7 +45,7 @@ export const SELECTORS = {
 export const UI_CONSTANTS = {
   PREVIEW_OFFSET_X: 20,
   PREVIEW_OFFSET_Y: 30,
-  PREVIEW_MAX_WIDTH: 320,
+  PREVIEW_MAX_WIDTH: 400,
   TASK_DRAG_HANDLE: '.task__tags',
 };
 

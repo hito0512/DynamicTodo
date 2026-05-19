@@ -1,4 +1,4 @@
-/* ========== 赛博科技风任务看板 ========== */
+﻿/* ========== 赛博科技风任务看板 ========== */
 /* 设计方向：未来科技/赛博朋克风，纯扁平化无渐变，冷色调 */
 
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
@@ -33,6 +33,14 @@
   --status-done-light: rgba(16, 185, 129, 0.1);
   --status-unfinish-light: rgba(239, 68, 68, 0.1);
 
+  /* 辉光色 - 与状态色匹配的半透明 */
+  --glow-sm: 0 0 4px rgba(59, 130, 246, 0.15);
+  --glow-md: 0 0 8px rgba(59, 130, 246, 0.12);
+  --status-todo-glow: rgba(59, 130, 246, 0.15);
+  --status-doing-glow: rgba(245, 158, 11, 0.15);
+  --status-done-glow: rgba(16, 185, 129, 0.15);
+  --status-unfinish-glow: rgba(239, 68, 68, 0.15);
+
   /* 圆角 - 现代圆润，更友好 */
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -56,21 +64,13 @@ body {
   color: var(--text-primary);
   line-height: 1.5;
 }
-  opacity: 0.3;
-  animation: scanline 8s linear infinite;
-}
-
-@keyframes scanline {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(100%); }
-}
 
 /* ========== 全局结构 ========== */
 .app {
   background: transparent;
   width: 100%;
   min-height: 100vh;
-  padding: 24px;
+  padding: 4px 24px 24px;
   position: relative;
   z-index: 1;
 }
@@ -90,35 +90,83 @@ body {
 .project {
   max-width: 1600px;
   margin: 0 auto;
+  position: relative;
+  /* 移除顶部边距 */
+  padding-top: 0;
+  margin-top: 0;
+}
+
+/* 视图切换标签 */
+.view-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 12px 0 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #ffffff;
+}
+
+.view-tab {
+  padding: 8px 20px;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  bottom: -1px;
+}
+
+.view-tab:hover {
+  color: var(--status-todo);
+  background: var(--status-todo-light);
+}
+
+.view-tab--active {
+  color: var(--status-todo);
+  background: #ffffff;
+  border-color: var(--border);
+  font-weight: 600;
+}
+
+.view-content--hidden {
+  display: none !important;
 }
 
 /* 网格布局 */
 .project-tasks {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  margin-top: 20px;
+  gap: 24px;
+  margin-top: 8px;
 }
 
 /* ========== 列标题 ========== */
 .project-column {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .project-column-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 14px 18px;
   border: 1px solid var(--border-secondary);
   border-radius: var(--radius-md);
   font-weight: 700;
-  font-size: 14px;
-  background: #ffffff; /* 纯白色背景 */
+  font-size: 15px;
+  background: #ffffff;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
   position: relative;
   transition: all 0.2s ease;
 }
@@ -246,10 +294,11 @@ body {
 /* ========== 任务卡片 ========== */
 .task {
   background: var(--surface);
-  border: 1px solid #e5e7eb; /* 浅灰色边框 */
+  border: 1px solid #e5e7eb;
+  border-left: 3px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 14px;
-  min-height: 88px;
+  padding: 16px 18px;
+  min-height: 80px;
   cursor: grab;
   transition: all 0.2s ease;
   position: relative;
@@ -273,15 +322,32 @@ body {
   z-index: 100;
 }
 
+/* 状态色左边界 */
+.task[data-status="todo"]     { border-left-color: var(--status-todo); }
+.task[data-status="doing"]    { border-left-color: var(--status-doing); }
+.task[data-status="done"]     { border-left-color: var(--status-done); }
+.task[data-status="unfinish"] { border-left-color: var(--status-unfinish); }
+
+/* 任务标题容器（标题+操作按钮同行） */
+.task__tags {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  min-height: 32px;
+}
+
 /* 任务标题标签 */
 .task__tag {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 8px;
+  font-size: 18px;
+  font-weight: 700;
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
+  flex: 1;
 }
 .task__tag--todo {
   color: var(--status-todo);
@@ -298,15 +364,16 @@ body {
 
 /* 任务描述 */
 .task__description {
-  font-size: 14px;
-  color: #4b5563; /* 深灰色描述文字 */
-  line-height: 1.4;
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.5;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  margin-bottom: 10px;
+  margin-bottom: 0;
+  min-height: 1.5em;
 }
 
 .task__description * {
@@ -319,43 +386,79 @@ body {
 }
 
 /* 任务操作按钮 */
-.task__options {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 20px;
-  height: 20px;
+.task__actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.task__action-btn {
+  width: 26px;
+  height: 26px;
   border: 1px solid transparent;
   background: transparent;
-  color: var(--text-muted);
   cursor: pointer;
-  opacity: 0;
+  opacity: 0.5;
   transition: all 0.2s ease;
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 1;
+  padding: 0;
 }
 
-.task:hover .task__options {
+.task:hover .task__action-btn {
   opacity: 1;
 }
 
-.task__options:hover {
+.task .task__action-btn:hover {
+  opacity: 1;
+}
+
+.task__action-btn--edit:hover {
+  border-color: var(--status-todo);
+  box-shadow: 0 0 6px var(--status-todo-glow);
+}
+
+.task__action-btn--delete:hover {
   border-color: var(--status-unfinish);
-  color: var(--status-unfinish);
   box-shadow: 0 0 6px var(--status-unfinish-glow);
+}
+
+/* 旧的 task__options 保留用于兼容，改为隐藏 */
+.task__options {
+  display: none;
 }
 
 /* 任务统计信息 */
 .task__stats {
-  font-size: 11px;
-  color: #6b7280; /* 中等灰色时间文字 */
+  font-size: 13px;
+  color: var(--text-muted);
   display: flex;
-  gap: 16px;
-  border-top: 1px dotted #e5e7eb;
-  padding-top: 8px;
+  gap: 2px;
+  border-top: 1px solid #f1f3f5;
+  padding-top: 10px;
+  margin-top: 2px;
+  align-items: center;
+}
+
+.task__stats span:not(:last-child)::after {
+  content: '·';
+  margin: 0 8px;
+  color: #d1d5db;
+}
+
+.task__stats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.task__date-range {
+  color: var(--status-todo);
+  font-weight: 600;
 }
 
 /* ========== 拖拽状态 ========== */
@@ -370,212 +473,275 @@ body {
 /* ========== 添加/编辑任务弹窗 ========== */
 .addTask {
   position: fixed;
-  width: 500px;
+  width: 420px;
+  max-width: 95vw;
   z-index: 9999;
   display: none;
   animation: fadeIn 0.2s ease;
 }
 
-@keyframes glitchIn {
-  0% { opacity: 0; transform: translate(-50%, -50%) skewX(5deg); }
-  20% { transform: translate(-51%, -50%) skewX(-3deg); }
-  40% { transform: translate(-49%, -50%) skewX(2deg); }
-  100% { opacity: 1; transform: translate(-50%, -50%) skewX(0); }
+.form-container {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 4px 16px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
 }
 
-.task-setting {
-  background: #ffffff; /* 纯白色背景 */
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 8px;
-  box-shadow: var(--shadow-lg);
-  position: relative;
-}
-
-.task-setting::before {
-  content: '[TASK INTERFACE]';
-  position: absolute;
-  top: -10px;
-  left: 10px;
-  background: #ffffff; /* 纯白色背景 */
-  padding: 0 8px;
-  font-size: 11px;
-  color: var(--text-accent);
-  letter-spacing: 1px;
-}
-
-#submit_task {
+/* 表单头部 */
+.form-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-secondary);
+  padding: 18px 24px 14px;
+  border-bottom: 1px solid #f1f3f5;
+  cursor: move;
+  user-select: none;
 }
 
-#submit_task h3 {
-  font-size: 16px;
+.form-title {
+  font-size: 17px;
   font-weight: 700;
-  color: #1f2937; /* 深色标题 */
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  color: #1f2937;
+  margin: 0;
+  letter-spacing: -0.2px;
 }
 
-#submit, #update {
-  padding: 6px 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  font-weight: 600;
+.form-close {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 20px;
+  line-height: 1;
   cursor: pointer;
-  transition: all 0.2s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  background: #ffffff;
-  color: #1f2937; /* 深色文字 */
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
 }
 
-#submit {
-  border-color: var(--border);
+.form-close:hover {
+  background: #f1f3f5;
+  color: #475569;
 }
 
-#submit:hover {
-  background: var(--status-todo);
-  color: white;
-  box-shadow: var(--shadow-md);
-}
-
-#update {
-  border-color: var(--status-done);
-}
-
-#update:hover {
-  background: var(--status-done);
-  color: white;
-  box-shadow: var(--shadow-md);
-}
-
-/* 表单字段 */
-.tag-progress {
-  margin-bottom: 8px;
-}
-.tag-progress:last-child {
-  margin-bottom: 0;
-}
-
-.tag-progress p {
+/* 表单主体 */
+.form-body {
+  padding: 20px 24px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 16px;
 }
 
-.tag-progress p span {
-  font-size: 12px;
-  font-weight: 600;
-  color: #4b5563; /* 深灰色标签文字 */
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
 }
 
-.tag-progress input,
-.tag-progress select,
-.tag-progress textarea {
-  padding: 6px 8px;
-  border: 1px solid #d1d5db;
-  border-radius: var(--radius-sm);
+.form-label {
   font-size: 13px;
-  background: #ffffff;
-  color: #1f2937; /* 深色文字 */
+  font-weight: 600;
+  color: #475569;
+  letter-spacing: 0.2px;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  padding: 10px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  background: #f8fafc;
+  color: #1f2937;
   transition: all 0.2s ease;
   font-family: inherit;
-}
-
-.tag-progress input:focus,
-.tag-progress select:focus,
-.tag-progress textarea:focus {
   outline: none;
-  border-color: var(--border);
-  box-shadow: var(--glow-sm);
 }
 
-#taskcontent {
-  min-height: 60px;
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: var(--status-todo);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: #94a3b8;
+}
+
+.form-textarea {
+  min-height: 100px;
   resize: vertical;
+  line-height: 1.5;
 }
 
+.form-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+/* 日期行 */
+.form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+/* 表单底部 */
+.form-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 14px 24px 18px;
+  border-top: 1px solid #f1f3f5;
+}
+
+.form-btn {
+  padding: 9px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+}
+
+.form-btn--cancel {
+  background: #f1f3f5;
+  color: #64748b;
+}
+
+.form-btn--cancel:hover {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.form-btn--submit {
+  background: var(--status-todo);
+  color: white;
+}
+
+.form-btn--submit:hover {
+  background: #2563eb;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  transform: translateY(-1px);
+}
+
+.form-btn--update {
+  background: var(--status-done);
+  color: white;
+}
+
+.form-btn--update:hover {
+  background: #059669;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  transform: translateY(-1px);
+}
 /* ========== 任务预览面板 ========== */
 .taskPreview {
   position: absolute;
   z-index: 9999;
-  width: 360px;
-  background: var(--surface);
+  width: 400px;
+  background: #f8f9fc;
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   display: none;
   animation: fadeIn 0.2s ease;
+  overflow: hidden;
 }
 
 /* 顶部状态条 */
 .taskPreview::before {
   content: '';
   display: block;
-  height: 3px;
+  height: 4px;
   width: 100%;
   background: var(--status-todo);
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
-  box-shadow: 0 0 8px var(--status-todo-glow);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
-.taskPreview[data-status="todo"]::before  {
-  background: var(--status-todo);
-  box-shadow: 0 0 8px var(--status-todo-glow);
+.taskPreview[data-status="todo"]::before  { background: var(--status-todo); }
+.taskPreview[data-status="doing"]::before { background: var(--status-doing); }
+.taskPreview[data-status="done"]::before  { background: var(--status-done); }
+.taskPreview[data-status="unfinish"]::before { background: var(--status-unfinish); }
+
+/* 关闭按钮 */
+.preview-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  z-index: 1;
 }
-.taskPreview[data-status="doing"]::before {
-  background: var(--status-doing);
-  box-shadow: 0 0 8px var(--status-doing-glow);
-}
-.taskPreview[data-status="done"]::before  {
-  background: var(--status-done);
-  box-shadow: 0 0 8px var(--status-done-glow);
-}
-.taskPreview[data-status="unfinish"]::before {
-  background: var(--status-unfinish);
-  box-shadow: 0 0 8px var(--status-unfinish-glow);
+
+.preview-close:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-primary);
 }
 
 .taskPreview__body {
-  padding: 20px;
+  padding: 20px 24px 24px;
 }
 
-/* 预览内容 */
+/* 预览标题 */
 .tag-Preview--title .ptitle {
   font-size: 18px;
   font-weight: 700;
-  color: var(--text-accent);
-  margin-bottom: 16px;
+  color: var(--text-primary);
+  margin-bottom: 14px;
   word-break: break-word;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  line-height: 1.4;
+  display: block;
+  padding-right: 24px; /* 给关闭按钮留空间 */
 }
 
+/* 状态 + 时间行 */
 .tag-Preview--meta {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 16px;
-  border-bottom: 1px dotted #e5e7eb; /* 浅灰色边框 */
-  padding-bottom: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f1f3f5;
 }
 
 .pstate {
-  padding: 4px 10px;
+  padding: 3px 10px;
   border-radius: var(--radius-sm);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
   border: 1px solid transparent;
+  flex-shrink: 0;
 }
 
 .pstate[data-status="todo"]     {
@@ -600,22 +766,19 @@ body {
 }
 
 .ptime {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
-  font-family: monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tag-Preview--desc {
-  border-top: none;
   padding-top: 0;
 }
 
-.tag-Preview--desc .pt {
-  display: none;
-}
-
 .pcontent {
-  font-size: 13px;
+  font-size: 14px;
   color: #4b5563; /* 深灰色内容文字 */
   line-height: 1.6;
   max-height: 240px;
@@ -714,10 +877,220 @@ body {
   }
 
   .addTask {
-    width: 90vw;
+    width: 92vw;
   }
 
   .taskPreview {
-    width: 90vw;
+    width: 92vw;
   }
 }
+
+/* ========== 日历视图 ========== */
+.calendar {
+  background: #ffffff;
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-top: 8px;
+  animation: fadeIn 0.2s ease;
+}
+
+.calendar__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.calendar__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  min-width: 140px;
+  text-align: center;
+}
+
+.calendar__nav-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.calendar__nav-btn:hover {
+  border-color: var(--status-todo);
+  color: var(--status-todo);
+  background: var(--status-todo-light);
+}
+
+.calendar__today-btn {
+  margin-left: auto;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.calendar__today-btn:hover {
+  border-color: var(--status-todo);
+  color: var(--status-todo);
+  background: var(--status-todo-light);
+}
+
+/* 星期行 */
+.calendar__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.calendar__weekday {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 6px 0;
+}
+
+/* 日期网格 */
+.calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.calendar__day {
+  min-height: 72px;
+  padding: 4px 6px;
+  border: 1px solid #f1f3f5;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar__day:hover {
+  border-color: var(--border-hover);
+  background: rgba(248, 250, 252, 0.8);
+}
+
+.calendar__day--empty {
+  border-color: transparent;
+  cursor: default;
+  background: transparent;
+}
+
+.calendar__day--empty:hover {
+  border-color: transparent;
+  background: transparent;
+}
+
+.calendar__day--today {
+  border-color: var(--status-todo);
+  background: var(--status-todo-light);
+}
+
+.calendar__day--selected {
+  border-color: var(--status-todo);
+  background: rgba(59, 130, 246, 0.08);
+  box-shadow: inset 0 0 0 2px var(--status-todo);
+}
+
+.calendar__day--empty-task {
+  min-height: auto;
+  padding: 6px 8px;
+}
+
+.calendar__day-number {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.calendar__day--today .calendar__day-number {
+  color: var(--status-todo);
+}
+
+.calendar__day-tasks {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* 日历中的任务项 */
+.calendar__task-item {
+  display: flex;
+  align-items: center;
+  padding: 1px 4px 1px 8px;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 12px;
+  overflow: hidden;
+  margin-bottom: 1px;
+}
+
+.calendar__task-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.calendar__task-item--todo     { border-left-color: var(--status-todo); }
+.calendar__task-item--doing    { border-left-color: var(--status-doing); }
+.calendar__task-item--done     { border-left-color: var(--status-done); }
+.calendar__task-item--unfinish { border-left-color: var(--status-unfinish); }
+
+.calendar__task-item--todo:hover     { background: color-mix(in srgb, var(--status-todo) 12%, transparent); }
+.calendar__task-item--doing:hover    { background: color-mix(in srgb, var(--status-doing) 12%, transparent); }
+.calendar__task-item--done:hover     { background: color-mix(in srgb, var(--status-done) 12%, transparent); }
+.calendar__task-item--unfinish:hover { background: color-mix(in srgb, var(--status-unfinish) 12%, transparent); }
+
+.calendar__task-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+/* 延续日：仅显示左侧色条，无内容 */
+.calendar__task-item--range {
+  padding: 0 0 0 8px;
+  margin-bottom: 2px;
+  min-height: 12px;
+  border-left-width: 3px;
+}
+
+.calendar__task-more {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+  padding: 1px 4px;
+  cursor: pointer;
+}
+
+.calendar__task-more:hover {
+  color: var(--status-todo);
+}
+
+
+
+
+

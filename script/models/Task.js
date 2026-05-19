@@ -12,6 +12,8 @@ class Task {
    * @param {number} data.createdAt 创建时间戳
    * @param {number} data.updatedAt 更新时间戳
    * @param {number} data.order 排序权重
+   * @param {number} [data.startDate] 开始日期时间戳
+   * @param {number} [data.endDate] 结束日期时间戳
    */
   constructor(data) {
     this.id = data.id || this.generateId();
@@ -21,6 +23,8 @@ class Task {
     this.createdAt = data.createdAt || Date.now();
     this.updatedAt = data.updatedAt || Date.now();
     this.order = data.order !== undefined ? data.order : 0;
+    this.startDate = data.startDate || null;
+    this.endDate = data.endDate || null;
   }
 
   /**
@@ -53,6 +57,8 @@ class Task {
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       order: this.order,
+      startDate: this.startDate,
+      endDate: this.endDate,
     };
   }
 
@@ -69,7 +75,7 @@ class Task {
     if (oldTask.year && oldTask.month && oldTask.day && oldTask.hour && oldTask.min && oldTask.sec) {
       createdAt = new Date(
         oldTask.year,
-        oldTask.month - 1,
+        oldTask.month,
         oldTask.day,
         oldTask.hour,
         oldTask.min,

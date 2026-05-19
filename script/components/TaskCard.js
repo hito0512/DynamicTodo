@@ -26,15 +26,25 @@ class TaskCard {
         createElement('span', {
           className: `task__tag task__tag--${this.task.status}`,
         }, this.task.title),
-        createElement('button', {
-          className: 'task__options task__delete-btn',
-          title: '删除任务',
-        }, '🗑️'),
+        createElement('div', { className: 'task__actions' }, [
+          createElement('button', {
+            className: 'task__action-btn task__action-btn--edit',
+            title: '编辑任务',
+          }, '✏️'),
+          createElement('button', {
+            className: 'task__action-btn task__action-btn--delete',
+            title: '删除任务',
+          }, '🗑️'),
+        ]),
       ]),
       createElement('div', { className: 'task__description' }, ''),
       createElement('div', { className: 'task__stats' }, [
-        createElement('span', {}, formatDate(this.task.createdAt, 'MM-DD')),
-        createElement('span', {}, formatDate(this.task.createdAt, 'HH:mm')),
+        this.task.startDate
+          ? createElement('span', { className: 'task__date-range' },
+              `📅 ${formatDate(this.task.startDate, 'YYYY-MM-DD')}` +
+              (this.task.endDate ? ` ~ ${formatDate(this.task.endDate, 'MM-DD')}` : ''))
+          : createElement('span', {}, `📅 ${formatDate(this.task.createdAt, 'YYYY-MM-DD')}`),
+        createElement('span', {}, `🕐 ${formatDate(this.task.createdAt, 'HH:mm')}`),
       ]),
     ]);
 
@@ -66,22 +76,37 @@ class TaskCard {
   }
 
   bindEvents() {
-    const titleTag = this.element.querySelector('.task__tag');
-    if (titleTag) {
-      titleTag.addEventListener('mouseenter', (e) => {
-        e.stopPropagation();
-        this.onPreview(this.task, e);
-      });
-      titleTag.addEventListener('mouseleave', () => {
+    // 鼠标进入整张卡片时显示预览（排除操作按钮区）
+    this.element.addEventListener('mouseenter', (e) => {
+      this.onPreview(this.task, e);
+    });
+
+    // 鼠标移入操作按钮区域时取消预览
+    const actionsEl = this.element.querySelector('.task__actions');
+    if (actionsEl) {
+      actionsEl.addEventListener('mouseenter', () => {
         this.onPreview(null);
       });
     }
 
-    const deleteBtn = this.element.querySelector('.task__options');
+    // 鼠标离开整张卡片时隐藏预览
+    this.element.addEventListener('mouseleave', () => {
+      this.onPreview(null);
+    });
+
+    const deleteBtn = this.element.querySelector('.task__action-btn--delete');
     if (deleteBtn) {
       deleteBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         this.showDeleteConfirm();
+      });
+    }
+
+    const editBtn = this.element.querySelector('.task__action-btn--edit');
+    if (editBtn) {
+      editBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.onEdit(this.task);
       });
     }
 
@@ -115,7 +140,7 @@ class TaskCard {
           borderRadius: '12px',
           padding: '2rem',
           minWidth: '300px',
-          boxShadow: '020px 60px rgba(0,0,0,0.2)',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
           textAlign: 'center',
         },
       }, [
@@ -123,7 +148,7 @@ class TaskCard {
           style: {
             marginBottom: '1.5rem',
             fontSize: '1.1rem',
-            color: 'var(--text)',
+            color: 'var(--text-primary)',
           },
         }, '确定要删除这个任务吗？'),
         createElement('div', {

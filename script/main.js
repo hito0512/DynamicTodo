@@ -51,19 +51,8 @@ async function initApp() {
     taskBoard = new TaskBoard(taskStore);
     await taskBoard.loadTasks();
 
-    // 替换页面中的现有内容
+    // 将看板挂载到容器
     const appContainer = document.querySelector('.app');
-    const oldMain = appContainer.querySelector('main');
-    if (oldMain) {
-      oldMain.remove();
-    }
-    // 移除旧的表单和预览元素
-    const oldAddTask = document.querySelector('#addTask');
-    if (oldAddTask) oldAddTask.remove();
-    const oldPreview = document.querySelector('#taskPreview');
-    if (oldPreview) oldPreview.remove();
-
-    // 添加新的看板
     appContainer.appendChild(taskBoard.getElement());
 
     // 初始化拖拽服务

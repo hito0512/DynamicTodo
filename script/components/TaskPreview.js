@@ -1,5 +1,5 @@
 import { createElement, debounce } from '../utils/dom.js';
-import { formatDate } from '../utils/date.js';
+import { formatDate, formatRelativeTime } from '../utils/date.js';
 import { sanitizeHtml } from '../utils/security.js';
 import { UI_CONSTANTS } from '../config/constants.js';
 
@@ -36,6 +36,13 @@ class TaskPreview {
       },
     }, [
       createElement('div', { className: 'taskPreview__body' }, [
+        // 顶部：关闭按钮
+        createElement('button', {
+          className: 'preview-close',
+          id: 'previewClose',
+          title: '关闭',
+          onclick: () => this.hidePreview(),
+        }, '×'),
         // 任务标题
         createElement('div', { className: 'tag-Preview tag-Preview--title' }, [
           createElement('span', { className: 'ptitle', id: 'ptitle' }),
@@ -47,7 +54,6 @@ class TaskPreview {
         ]),
         // 描述
         createElement('div', { className: 'tag-Preview tag-Preview--desc' }, [
-          createElement('span', { className: 'pt', id: 'pt' }, '描述'),
           createElement('div', { className: 'pcontent', id: 'pcontent' }),
         ]),
       ]),
@@ -70,6 +76,10 @@ class TaskPreview {
    * @param {Event} [event] 触发事件，用于定位
    */
   show(task, event) {
+    // 清除 pending 的显示/隐藏，避免竞态
+    this.showPreviewDebounced.cancel();
+    this.hidePreviewDebounced.cancel();
+
     if (task) {
       this.showPreviewDebounced(task, event);
     } else {
@@ -94,7 +104,16 @@ class TaskPreview {
     const stateEl = this.element.querySelector('#pstate');
     stateEl.textContent = this.getStatusText(task.status);
     stateEl.setAttribute('data-status', task.status);
-    this.element.querySelector('#ptime').textContent = formatDate(task.createdAt, 'YYYY-MM-DD HH:mm:ss');
+    // 日期信息
+    let timeStr = '';
+    if (task.startDate) {
+      timeStr = formatDate(task.startDate, 'MM-DD');
+      if (task.endDate) timeStr += ` ~ ${formatDate(task.endDate, 'MM-DD')}`;
+      timeStr += ' · ';
+    }
+    const relativeTime = formatRelativeTime(task.createdAt);
+    const fullTime = formatDate(task.createdAt, 'YYYY-MM-DD HH:mm');
+    this.element.querySelector('#ptime').textContent = `${timeStr}${relativeTime} · ${fullTime}`;
 
     // 渲染markdown描述
     if (window.marked && task.description) {

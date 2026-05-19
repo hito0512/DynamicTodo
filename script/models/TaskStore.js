@@ -291,6 +291,61 @@ class TaskStore {
       throw error;
     }
   }
+
+  /**
+   * 导出全部数据（任务+自定义状态文本）
+   * @returns {object} 导出数据对象
+   */
+  exportData() {
+    return {
+      version: TaskStore.DATA_VERSION,
+      exportTime: new Date().toISOString(),
+      tasks: this.tasks.map(task => task.toJSON()),
+      statusTexts: { ...this.statusTexts },
+    };
+  }
+
+  /**
+   * 导入数据
+   * @param {object} data 导入的数据对象
+   * @returns {Promise<boolean>} 导入成功返回true
+   */
+  async importData(data) {
+    try {
+      // 验证数据格式
+      if (!data || !Array.isArray(data.tasks)) {
+        return false;
+      }
+
+      // 验证每个任务格式
+      const validTasks = data.tasks.filter(taskData =>
+        taskData.id && taskData.title && Object.values(TASK_STATUS).includes(taskData.status)
+      );
+
+      if (validTasks.length === 0) {
+        return false;
+      }
+
+      // 替换现有任务
+      this.tasks = validTasks.map(taskData => new Task(taskData));
+
+      // 导入状态文本（如果有）
+      if (data.statusTexts && typeof data.statusTexts === 'object') {
+        this.statusTexts = { ...STATUS_TEXT, ...data.statusTexts };
+        // 保存自定义状态文本
+        await this.api.setBlockAttrs(this.blockId, {
+          'custom-status-texts': JSON.stringify(this.statusTexts),
+        });
+      }
+
+      // 保存到块属性
+      await this.save();
+      return true;
+    } catch (error) {
+      console.error('导入数据失败:', error);
+      return false;
+    }
+  }
 }
 
 export default TaskStore;

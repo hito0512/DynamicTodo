@@ -101,6 +101,7 @@ class SiyuanApi {
     const results = await this.sqlQuery('select * from blocks where id = $1', [cleanBlockId]);
     return results?.[0]?.content || '';
   }
+
 }
 
 export default SiyuanApi;
