@@ -255,7 +255,7 @@ class TaskStore {
   getArchivedTasks() {
     return this.tasks
       .filter(task => task.archived)
-      .sort((a, b) => b.updatedAt - a.updatedAt);
+      .sort((a, b) => b.createdAt - a.createdAt);
   }
 
   async archiveTask(taskId) {

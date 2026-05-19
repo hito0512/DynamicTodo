@@ -293,25 +293,93 @@ class TaskBoard {
     // 清空面板
     while (panel.firstChild) panel.removeChild(panel.firstChild);
 
-    // 收集所有年份
-    const years = [...new Set(archivedTasks.map(t => new Date(t.updatedAt).getFullYear()))]
+    // 分隔未完成和其他归档
+    const unfinishTasks = archivedTasks.filter(t => t.status === 'unfinish');
+    const doneTasks = archivedTasks.filter(t => t.status !== 'unfinish');
+
+    // ── 未完成归档区（按年选择）──
+    const unfinishYears = [...new Set(unfinishTasks.map(t => new Date(t.createdAt).getFullYear()))]
       .sort((a, b) => b - a);
 
-    // 初始化选中年份
+    if (!this.selectedUnfinishYear || !unfinishYears.includes(this.selectedUnfinishYear)) {
+      this.selectedUnfinishYear = unfinishYears[0] || new Date().getFullYear();
+    }
+
+    const unfinishSection = createElement('div', {
+      style: { borderBottom: '1px solid #f1f3f5' },
+    }, [
+      createElement('div', {
+        style: {
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          padding: '14px 20px',
+        },
+      }, [
+        createElement('div', {
+          style: { display: 'flex', alignItems: 'center', gap: '8px' },
+        }, [
+          createElement('h3', {
+            style: { margin: '0', fontSize: '17px', fontWeight: '700', color: '#e53e3e' },
+          }, `⏳ ${this.taskStore.getStatusText('unfinish')}归档`),
+          createElement('span', {
+            style: { fontSize: '13px', color: '#94a3b8' },
+          }, `(${unfinishTasks.length})`),
+        ]),
+        unfinishYears.length > 0 ? createElement('select', {
+          style: {
+            padding: '4px 10px', border: '1px solid #e2e8f0', borderRadius: '6px',
+            fontSize: '14px', background: 'white', cursor: 'pointer',
+          },
+          onchange: (e) => {
+            this.selectedUnfinishYear = parseInt(e.target.value);
+            this.renderArchivePanel();
+          },
+        }, unfinishYears.map(y =>
+          createElement('option', {
+            value: y,
+            selected: y === this.selectedUnfinishYear,
+          }, `${y} 年`)
+        )) : null,
+      ]),
+      (() => {
+        const filtered = unfinishTasks.filter(t =>
+          new Date(t.createdAt).getFullYear() === this.selectedUnfinishYear
+        );
+        return filtered.length > 0
+          ? createElement('div', {
+              style: { padding: '0 20px 16px', display: 'flex', flexWrap: 'wrap', gap: '8px' },
+            }, filtered.map(task => this.renderArchiveCard(task)))
+          : createElement('div', {
+              style: { textAlign: 'center', color: '#94a3b8', padding: '0 20px 16px', fontSize: '14px' },
+            }, `${this.selectedUnfinishYear} 年暂无${this.taskStore.getStatusText('unfinish')}归档`);
+      })(),
+    ]);
+    panel.appendChild(unfinishSection);
+
+    // ── 已完成归档区（按年选择）──
+    const years = [...new Set(doneTasks.map(t => new Date(t.createdAt).getFullYear()))]
+      .sort((a, b) => b - a);
+
     if (!this.selectedArchiveYear || !years.includes(this.selectedArchiveYear)) {
       this.selectedArchiveYear = years[0] || new Date().getFullYear();
     }
 
-    const header = createElement('div', {
+    const doneHeader = createElement('div', {
       style: {
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '14px 20px', borderBottom: '1px solid #f1f3f5',
+        padding: '14px 20px',
       },
     }, [
-      createElement('h3', {
-        style: { margin: '0', fontSize: '17px', fontWeight: '700', color: '#1e293b' },
-      }, `🗄️ 归档任务`),
-      createElement('select', {
+      createElement('div', {
+        style: { display: 'flex', alignItems: 'center', gap: '8px' },
+      }, [
+        createElement('h3', {
+          style: { margin: '0', fontSize: '17px', fontWeight: '700', color: '#1e293b' },
+        }, `✅ ${this.taskStore.getStatusText('done')}归档`),
+        createElement('span', {
+          style: { fontSize: '13px', color: '#94a3b8' },
+        }, `(${doneTasks.length})`),
+      ]),
+      years.length > 0 ? createElement('select', {
         style: {
           padding: '4px 10px', border: '1px solid #e2e8f0', borderRadius: '6px',
           fontSize: '14px', background: 'white', cursor: 'pointer',
@@ -325,28 +393,37 @@ class TaskBoard {
           value: y,
           selected: y === this.selectedArchiveYear,
         }, `${y} 年`)
-      )),
+      )) : null,
     ]);
 
-    panel.appendChild(header);
+    panel.appendChild(doneHeader);
 
-    const filtered = archivedTasks.filter(t =>
-      new Date(t.updatedAt).getFullYear() === this.selectedArchiveYear
+    const filtered = doneTasks.filter(t =>
+      new Date(t.createdAt).getFullYear() === this.selectedArchiveYear
     );
 
-    if (filtered.length === 0) {
+    if (filtered.length > 0) {
+      panel.appendChild(createElement('div', {
+        style: { padding: '0 20px 16px', display: 'flex', flexWrap: 'wrap', gap: '8px' },
+      }, filtered.map(task => this.renderArchiveCard(task))));
+    } else {
+      panel.appendChild(createElement('div', {
+        style: { textAlign: 'center', color: '#94a3b8', padding: '0 20px 16px', fontSize: '14px' },
+      }, `${this.selectedArchiveYear} 年暂无${this.taskStore.getStatusText('done')}归档`));
+    }
+
+    if (archivedTasks.length === 0) {
       panel.appendChild(createElement('div', {
         style: {
           textAlign: 'center', color: '#94a3b8', padding: '60px 0',
           fontSize: '15px',
         },
-      }, `${this.selectedArchiveYear} 年暂无归档任务`));
-      return;
+      }, '暂无归档任务'));
     }
+  }
 
-    const list = createElement('div', {
-      style: { padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '8px' },
-    }, filtered.map(task => createElement('div', {
+  renderArchiveCard(task) {
+    return createElement('div', {
       style: {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '12px 16px', border: '1px solid #f1f3f5', borderRadius: '10px',
@@ -359,7 +436,7 @@ class TaskBoard {
         }, task.title),
         createElement('div', {
           style: { fontSize: '12px', color: '#94a3b8', marginTop: '3px' },
-        }, `状态: ${this.taskStore.getStatusText(task.status)} · 归档: ${new Date(task.updatedAt).toLocaleDateString()}`),
+        }, `状态: ${this.taskStore.getStatusText(task.status)} · 创建: ${new Date(task.createdAt).toLocaleDateString()}`),
       ]),
       createElement('button', {
         style: {
@@ -371,9 +448,7 @@ class TaskBoard {
         onmouseenter: (e) => { e.target.style.background = '#059669'; },
         onmouseleave: (e) => { e.target.style.background = 'var(--status-done)'; },
       }, '恢复'),
-    ])));
-
-    panel.appendChild(list);
+    ]);
   }
 
   toggleSettingsMenu(e) {

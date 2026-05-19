@@ -41,8 +41,8 @@ class TaskColumn {
     const iconMap = {
       'todo': '📖',
       'doing': '🚴',
-      'done': '💯',
-      'unfinish': '👎',
+      'done': '✅',
+      'unfinish': '⏳',
     };
 
     // 创建添加按钮
@@ -94,8 +94,8 @@ class TaskColumn {
     const iconMap = {
       'todo': '📖',
       'doing': '🚴',
-      'done': '💯',
-      'unfinish': '👎',
+      'done': '✅',
+      'unfinish': '⏳',
     };
     const icon = iconMap[this.status];
 
@@ -170,8 +170,8 @@ class TaskColumn {
     const iconMap = {
       'todo': '📖',
       'doing': '🚴',
-      'done': '💯',
-      'unfinish': '👎',
+      'done': '✅',
+      'unfinish': '⏳',
     };
     const icon = iconMap[this.status];
     this.titleElement.textContent = `${icon} ${newText}`;

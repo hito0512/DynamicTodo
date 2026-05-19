@@ -32,7 +32,7 @@ class TaskCard {
             className: 'task__action-btn task__action-btn--edit',
             title: '编辑任务',
           }, '✏️'),
-          this.task.status === 'done' ? createElement('button', {
+          this.task.status === 'done' || this.task.status === 'unfinish' ? createElement('button', {
             className: 'task__action-btn task__action-btn--archive',
             title: '归档任务',
           }, '📦') : null,
