@@ -25,6 +25,7 @@ class Task {
     this.order = data.order !== undefined ? data.order : 0;
     this.startDate = data.startDate || null;
     this.endDate = data.endDate || null;
+    this.archived = data.archived || false;
   }
 
   /**
@@ -59,6 +60,7 @@ class Task {
       order: this.order,
       startDate: this.startDate,
       endDate: this.endDate,
+      archived: this.archived,
     };
   }
 

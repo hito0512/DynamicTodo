@@ -136,6 +136,15 @@ body {
   font-weight: 600;
 }
 
+/* 设置按钮 */
+.settings-btn {
+  font-size: 16px;
+  padding: 8px 12px;
+}
+.settings-btn:not(.view-tab--active):hover {
+  background: #f1f5f9;
+}
+
 .view-content--hidden {
   display: none !important;
 }
@@ -426,6 +435,15 @@ body {
   border-color: var(--status-unfinish);
   box-shadow: 0 0 6px var(--status-unfinish-glow);
 }
+
+.task__action-btn--archive {
+  font-size: 14px;
+}
+.task__action-btn--archive:hover {
+  border-color: var(--status-done);
+  box-shadow: 0 0 6px var(--status-done-glow);
+}
+
 
 /* 旧的 task__options 保留用于兼容，改为隐藏 */
 .task__options {

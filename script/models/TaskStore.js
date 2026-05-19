@@ -248,8 +248,32 @@ class TaskStore {
    */
   getTasksByStatus(status) {
     return this.tasks
-      .filter(task => task.status === status)
+      .filter(task => task.status === status && !task.archived)
       .sort((a, b) => a.order - b.order);
+  }
+
+  getArchivedTasks() {
+    return this.tasks
+      .filter(task => task.archived)
+      .sort((a, b) => b.updatedAt - a.updatedAt);
+  }
+
+  async archiveTask(taskId) {
+    const task = this.tasks.find(t => t.id === taskId);
+    if (!task || task.archived) return false;
+    task.archived = true;
+    task.updatedAt = Date.now();
+    await this.save();
+    return true;
+  }
+
+  async restoreTask(taskId) {
+    const task = this.tasks.find(t => t.id === taskId);
+    if (!task || !task.archived) return false;
+    task.archived = false;
+    task.updatedAt = Date.now();
+    await this.save();
+    return true;
   }
 
   /**
@@ -326,8 +350,22 @@ class TaskStore {
         return false;
       }
 
-      // 替换现有任务
-      this.tasks = validTasks.map(taskData => new Task(taskData));
+      // 合并导入的任务到现有数据（按标题去重，导入的覆盖已有）
+      const existingByTitle = new Map(this.tasks.map(t => [t.title, t]));
+      validTasks.forEach(taskData => {
+        const existing = existingByTitle.get(taskData.title);
+        if (existing) {
+          // 保留原有 ID 和时间，更新其他字段
+          existing.description = taskData.description || '';
+          existing.status = taskData.status;
+          existing.startDate = taskData.startDate || null;
+          existing.endDate = taskData.endDate || null;
+          existing.updatedAt = Date.now();
+        } else {
+          existingByTitle.set(taskData.title, new Task(taskData));
+        }
+      });
+      this.tasks = Array.from(existingByTitle.values());
 
       // 导入状态文本（如果有）
       if (data.statusTexts && typeof data.statusTexts === 'object') {

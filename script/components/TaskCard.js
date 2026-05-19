@@ -10,6 +10,7 @@ class TaskCard {
     this.task = task;
     this.onEdit = callbacks.onEdit || (() => {});
     this.onDelete = callbacks.onDelete || (() => {});
+    this.onArchive = callbacks.onArchive || (() => {});
     this.onPreview = callbacks.onPreview || (() => {});
     this.element = null;
     this.render();
@@ -31,6 +32,10 @@ class TaskCard {
             className: 'task__action-btn task__action-btn--edit',
             title: '编辑任务',
           }, '✏️'),
+          this.task.status === 'done' ? createElement('button', {
+            className: 'task__action-btn task__action-btn--archive',
+            title: '归档任务',
+          }, '📦') : null,
           createElement('button', {
             className: 'task__action-btn task__action-btn--delete',
             title: '删除任务',
@@ -106,6 +111,14 @@ class TaskCard {
       editBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         this.onEdit(this.task);
+      });
+    }
+
+    const archiveBtn = this.element.querySelector('.task__action-btn--archive');
+    if (archiveBtn) {
+      archiveBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.onArchive(this.task.id);
       });
     }
 

@@ -28,6 +28,7 @@ class TaskBoard {
         onDeleteTask: (taskId) => this.handleDeleteTask(taskId),
         onPreviewTask: (task, event) => this.handlePreviewTask(task, event),
         onDragStart: () => this.handleDragStart(),
+        onArchiveTask: (taskId) => this.handleArchiveTask(taskId),
         getStatusText: (status) => this.taskStore.getStatusText(status),
         onStatusTextUpdate: (status, newText) => this.handleStatusTextUpdate(status, newText),
       });
@@ -47,6 +48,14 @@ class TaskBoard {
     });
 
     this.render();
+
+    // 点击设置菜单外部时关闭
+    document.addEventListener('click', (e) => {
+      const wrapper = this.element?.querySelector('.settings-wrapper');
+      if (wrapper && !wrapper.contains(e.target)) {
+        this.closeSettingsMenu();
+      }
+    });
   }
 
   render() {
@@ -61,6 +70,50 @@ class TaskBoard {
           className: 'view-tab' + (this.activeView === 'calendar' ? ' view-tab--active' : ''),
           onclick: () => this.switchView('calendar'),
         }, '📅 日历'),
+        createElement('button', {
+          className: 'view-tab' + (this.activeView === 'archive' ? ' view-tab--active' : ''),
+          onclick: () => this.switchView('archive'),
+        }, '🗄️ 归档'),
+        // 设置按钮（最右侧）
+        createElement('div', {
+          className: 'settings-wrapper',
+          style: { position: 'relative', marginLeft: 'auto' },
+        }, [
+          createElement('button', {
+            className: 'view-tab settings-btn',
+            onclick: (e) => this.toggleSettingsMenu(e),
+          }, '⚙️'),
+          createElement('div', {
+            className: 'settings-dropdown',
+            style: {
+              display: 'none', position: 'absolute', right: '0', top: '100%',
+              background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: '100',
+              minWidth: '140px', overflow: 'hidden',
+            },
+          }, [
+            createElement('button', {
+              style: {
+                display: 'block', width: '100%', padding: '10px 16px', border: 'none',
+                background: 'transparent', cursor: 'pointer', fontSize: '14px',
+                textAlign: 'left', color: '#1e293b',
+              },
+              onclick: (e) => { e.stopPropagation(); this.handleExportData(); },
+              onmouseenter: (e) => { e.target.style.background = '#f1f5f9'; },
+              onmouseleave: (e) => { e.target.style.background = 'transparent'; },
+            }, '📤 导出数据'),
+            createElement('button', {
+              style: {
+                display: 'block', width: '100%', padding: '10px 16px', border: 'none',
+                background: 'transparent', cursor: 'pointer', fontSize: '14px',
+                textAlign: 'left', color: '#1e293b', borderTop: '1px solid #f1f3f5',
+              },
+              onclick: (e) => { e.stopPropagation(); this.handleImportData(); },
+              onmouseenter: (e) => { e.target.style.background = '#f1f5f9'; },
+              onmouseleave: (e) => { e.target.style.background = 'transparent'; },
+            }, '📥 导入数据'),
+          ]),
+        ]),
       ]),
       // 看板内容区
       createElement('div', {
@@ -74,6 +127,11 @@ class TaskBoard {
       createElement('div', {
         className: 'view-content' + (this.activeView === 'calendar' ? '' : ' view-content--hidden'),
       }, this.calendar.getElement()),
+      // 归档面板
+      createElement('div', {
+        className: 'view-content' + (this.activeView === 'archive' ? '' : ' view-content--hidden'),
+        id: 'archivePanel',
+      }),
       // 弹窗
       this.taskForm.getElement(),
       this.taskPreview.getElement(),
@@ -88,24 +146,23 @@ class TaskBoard {
 
   refreshView() {
     const viewContents = this.element.querySelectorAll('.view-content');
+    const views = ['board', 'calendar', 'archive'];
     viewContents.forEach((el, index) => {
-      if (index === 0) {
-        el.classList.toggle('view-content--hidden', this.activeView !== 'board');
-      } else {
-        el.classList.toggle('view-content--hidden', this.activeView !== 'calendar');
-      }
+      el.classList.toggle('view-content--hidden', this.activeView !== views[index]);
     });
 
     const tabs = this.element.querySelectorAll('.view-tab');
+    const tabViews = ['board', 'calendar', 'archive'];
     tabs.forEach((tab, index) => {
-      tab.classList.toggle('view-tab--active',
-        (index === 0 && this.activeView === 'board') ||
-        (index === 1 && this.activeView === 'calendar')
-      );
+      if (index < tabViews.length) {
+        tab.classList.toggle('view-tab--active', this.activeView === tabViews[index]);
+      }
     });
 
     if (this.activeView === 'calendar') {
       this.calendar.refresh();
+    } else if (this.activeView === 'archive') {
+      this.renderArchivePanel();
     }
   }
 
@@ -207,6 +264,166 @@ class TaskBoard {
     if (column) column.updateTitle(newText);
     this.taskForm.updateStatusOptions(this.taskStore.getStatusTexts());
     this.renderAllTasks();
+  }
+
+  async handleArchiveTask(taskId) {
+    const success = await this.taskStore.archiveTask(taskId);
+    if (success) {
+      for (const column of this.columns.values()) {
+        if (column.removeTask(taskId)) break;
+      }
+      this.calendar.refresh();
+    }
+  }
+
+  async handleRestoreTask(taskId) {
+    const success = await this.taskStore.restoreTask(taskId);
+    if (success) {
+      this.renderAllTasks();
+      this.calendar.refresh();
+      this.renderArchivePanel();
+    }
+  }
+
+  renderArchivePanel() {
+    const panel = this.element.querySelector('#archivePanel');
+    if (!panel) return;
+    const archivedTasks = this.taskStore.getArchivedTasks();
+
+    // 清空面板
+    while (panel.firstChild) panel.removeChild(panel.firstChild);
+
+    // 收集所有年份
+    const years = [...new Set(archivedTasks.map(t => new Date(t.updatedAt).getFullYear()))]
+      .sort((a, b) => b - a);
+
+    // 初始化选中年份
+    if (!this.selectedArchiveYear || !years.includes(this.selectedArchiveYear)) {
+      this.selectedArchiveYear = years[0] || new Date().getFullYear();
+    }
+
+    const header = createElement('div', {
+      style: {
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        padding: '14px 20px', borderBottom: '1px solid #f1f3f5',
+      },
+    }, [
+      createElement('h3', {
+        style: { margin: '0', fontSize: '17px', fontWeight: '700', color: '#1e293b' },
+      }, `🗄️ 归档任务`),
+      createElement('select', {
+        style: {
+          padding: '4px 10px', border: '1px solid #e2e8f0', borderRadius: '6px',
+          fontSize: '14px', background: 'white', cursor: 'pointer',
+        },
+        onchange: (e) => {
+          this.selectedArchiveYear = parseInt(e.target.value);
+          this.renderArchivePanel();
+        },
+      }, years.map(y =>
+        createElement('option', {
+          value: y,
+          selected: y === this.selectedArchiveYear,
+        }, `${y} 年`)
+      )),
+    ]);
+
+    panel.appendChild(header);
+
+    const filtered = archivedTasks.filter(t =>
+      new Date(t.updatedAt).getFullYear() === this.selectedArchiveYear
+    );
+
+    if (filtered.length === 0) {
+      panel.appendChild(createElement('div', {
+        style: {
+          textAlign: 'center', color: '#94a3b8', padding: '60px 0',
+          fontSize: '15px',
+        },
+      }, `${this.selectedArchiveYear} 年暂无归档任务`));
+      return;
+    }
+
+    const list = createElement('div', {
+      style: { padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '8px' },
+    }, filtered.map(task => createElement('div', {
+      style: {
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '12px 16px', border: '1px solid #f1f3f5', borderRadius: '10px',
+        background: '#fafbfc',
+      },
+    }, [
+      createElement('div', { style: { flex: '1', minWidth: '0' } }, [
+        createElement('div', {
+          style: { fontSize: '15px', fontWeight: '600', color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+        }, task.title),
+        createElement('div', {
+          style: { fontSize: '12px', color: '#94a3b8', marginTop: '3px' },
+        }, `状态: ${this.taskStore.getStatusText(task.status)} · 归档: ${new Date(task.updatedAt).toLocaleDateString()}`),
+      ]),
+      createElement('button', {
+        style: {
+          padding: '6px 16px', border: 'none', borderRadius: '8px',
+          background: 'var(--status-done)', color: 'white', cursor: 'pointer',
+          fontSize: '13px', fontWeight: '600', flexShrink: '0', marginLeft: '12px',
+        },
+        onclick: () => this.handleRestoreTask(task.id),
+        onmouseenter: (e) => { e.target.style.background = '#059669'; },
+        onmouseleave: (e) => { e.target.style.background = 'var(--status-done)'; },
+      }, '恢复'),
+    ])));
+
+    panel.appendChild(list);
+  }
+
+  toggleSettingsMenu(e) {
+    e.stopPropagation();
+    const dropdown = this.element.querySelector('.settings-dropdown');
+    const isOpen = dropdown.style.display !== 'none';
+    dropdown.style.display = isOpen ? 'none' : 'block';
+  }
+
+  handleExportData() {
+    const data = this.taskStore.exportData();
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `DynamicTodo_export_${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    this.closeSettingsMenu();
+  }
+
+  handleImportData() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        const success = await this.taskStore.importData(data);
+        if (success) {
+          this.renderAllTasks();
+          this.calendar.refresh();
+        } else {
+          alert('导入失败：数据格式不正确');
+        }
+      } catch (err) {
+        alert('导入失败：' + err.message);
+      }
+    };
+    input.click();
+    this.closeSettingsMenu();
+  }
+
+  closeSettingsMenu() {
+    const dropdown = this.element.querySelector('.settings-dropdown');
+    if (dropdown) dropdown.style.display = 'none';
   }
 
   destroy() {

@@ -73,7 +73,7 @@ class TaskCalendar {
 
     // 构建按天索引：每个任务出现在它覆盖的每一天（含 range）
     const tasksByDay = {};
-    this.taskStore.tasks.forEach(task => {
+    this.taskStore.tasks.filter(t => !t.archived).forEach(task => {
       const startTs = task.startDate || task.createdAt;
       const endTs = task.endDate || startTs;
       const startKey = this.tsKey(startTs);

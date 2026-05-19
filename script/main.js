@@ -63,6 +63,8 @@ async function initApp() {
       }
     );
 
+    window.__taskBoard = taskBoard;
+    window.__taskStore = taskStore;
     console.log('DynamicTodo 初始化完成');
   } catch (error) {
     console.error('初始化失败:', error);
