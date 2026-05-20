@@ -33,17 +33,23 @@
 
 供外部工具/Agent 创建任务卡片时使用。
 
-### 创建任务
+### JSON 导入格式
+
+生成 JSON 文件后，在挂件中点击 **⚙️ → 导入数据** 选择文件即可导入。
 
 ```json
 {
-  "title": "任务标题",
-  "description": "支持 Markdown 的描述内容",
-  "status": "todo",
-  "tags": ["工作", "前端"],
-  "startDate": 1747612800000,
-  "endDate": null,
-  "createdAt": 1747612800000
+  "tasks": [
+    {
+      "title": "任务标题",
+      "description": "支持 **Markdown** 的描述内容",
+      "status": "todo",
+      "tags": ["工作", "前端"],
+      "startDate": 1747612800000,
+      "endDate": null,
+      "createdAt": 1747612800000
+    }
+  ]
 }
 ```
 
@@ -69,39 +75,14 @@
 | `done` | 已完成 | 已完成任务 |
 | `unfinish` | 未完成 | 未完成任务（如逾期） |
 
-### 持久化格式
+### 从思源文档生成任务卡片
 
-数据以 JSON 字符串存入思源笔记块属性 `custom-tasks` 中：
+1. Agent 通过 `cli-anything-siyuan export md <doc-id>` 导出文档 Markdown
+2. 解析文档中的清单/笔记内容，按上方 JSON 格式生成 `tasks.json`
+3. 用户拿到 JSON 文件后，在 DynamicTodo 挂件中 **⚙️ → 导入数据** 即可
 
-```json
-{
-  "version": "1.0.0",
-  "tasks": [
-    { "id": "...", "title": "...", "status": "todo", ... }
-  ],
-  "updatedAt": 1747612800000
-}
-```
+生成的 JSON 文件保存在桌面（如 `~/Desktop/tasks.json`），**严禁放入代码目录或提交到 git**。
 
-## 开发
-
-### cli-anything-siyuan
-
-基于 [CLI-Anything](https://github.com/HKUDS/CLI-Anything) 方法论构建的思源笔记 CLI 工具，通过 HTTP API 连接运行中的内核。可用于查询任务数据、调试和自动化操作。
-
-
-
-### 数据调试
-
-DynamicTodo 将任务数据以 JSON 字符串存储在思源块属性 `custom-tasks` 中：
-
-```bash
-# 查看挂件块的完整属性
-cli-anything-siyuan block get <挂件块ID>
-
-# 直接读取 .sy 文件查找挂件
-find ~/SiYuan/data -name "*.sy" | xargs grep -l "DynamicTodo" 2>/dev/null
-```
 
 
 ## 更新记录
