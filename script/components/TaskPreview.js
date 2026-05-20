@@ -107,13 +107,11 @@ class TaskPreview {
     // 日期信息
     let timeStr = '';
     if (task.startDate) {
-      timeStr = formatDate(task.startDate, 'MM-DD');
-      if (task.endDate) timeStr += ` ~ ${formatDate(task.endDate, 'MM-DD')}`;
+      timeStr = formatDate(task.startDate, 'YYYY-MM-DD');
+      if (task.endDate) timeStr += ` ~ ${formatDate(task.endDate, 'YYYY-MM-DD')}`;
       timeStr += ' · ';
     }
-    const relativeTime = formatRelativeTime(task.createdAt);
-    const fullTime = formatDate(task.createdAt, 'YYYY-MM-DD HH:mm');
-    this.element.querySelector('#ptime').textContent = `${timeStr}${relativeTime} · ${fullTime}`;
+    this.element.querySelector('#ptime').textContent = `${timeStr}${formatRelativeTime(task.createdAt)}`;
 
     // 渲染markdown描述
     if (window.marked && task.description) {

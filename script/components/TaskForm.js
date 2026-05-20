@@ -83,8 +83,18 @@ class TaskForm {
         createElement('textarea', {
           id: 'taskcontent',
           className: 'form-textarea',
-          rows: 6,
+          rows: 4,
           placeholder: '输入任务描述（支持 Markdown）...',
+        }),
+      ]),
+      // 标签
+      createElement('div', { className: 'form-group' }, [
+        createElement('label', { className: 'form-label' }, '标签（逗号分隔）'),
+        createElement('input', {
+          type: 'text',
+          placeholder: '例如: 工作, 个人, 学习',
+          id: 'tasktags',
+          className: 'form-input',
         }),
       ]),
     ]);
@@ -164,6 +174,7 @@ class TaskForm {
 
     this.element.querySelector('#taskname').value = '';
     this.element.querySelector('#taskcontent').value = '';
+    this.element.querySelector('#tasktags').value = '';
     this.element.querySelector('#taskType').value = defaultStatus;
     this.element.querySelector('#taskstart').value = formatDateInput(Date.now());
     this.element.querySelector('#taskend').value = '';
@@ -188,6 +199,7 @@ class TaskForm {
 
     this.element.querySelector('#taskname').value = task.title;
     this.element.querySelector('#taskcontent').value = task.description;
+    this.element.querySelector('#tasktags').value = (task.tags || []).join(', ');
     this.element.querySelector('#taskType').value = task.status;
 
     if (task.startDate) {
@@ -272,8 +284,9 @@ class TaskForm {
     const startVal = this.element.querySelector('#taskstart').value;
     const endVal = this.element.querySelector('#taskend').value;
 
+    const tagsVal = this.element.querySelector('#tasktags').value.trim();
     const taskData = {
-      title, description, status,
+      title, description, status, tags: tagsVal ? tagsVal.split(/[,，]/).map(t => t.trim()).filter(Boolean) : [],
       startDate: startVal ? new Date(startVal).getTime() : Date.now(),
       endDate: endVal ? new Date(endVal).getTime() : null,
       createdAt: Date.now(),
@@ -297,8 +310,9 @@ class TaskForm {
     const startVal = this.element.querySelector('#taskstart').value;
     const endVal = this.element.querySelector('#taskend').value;
 
+    const tagsVal = this.element.querySelector('#tasktags').value.trim();
     const updateData = {
-      title, description, status,
+      title, description, status, tags: tagsVal ? tagsVal.split(/[,，]/).map(t => t.trim()).filter(Boolean) : [],
       startDate: startVal ? new Date(startVal).getTime() : (this.currentTask.startDate || Date.now()),
       endDate: endVal ? new Date(endVal).getTime() : null,
     };

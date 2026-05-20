@@ -12,6 +12,7 @@ class TaskCard {
     this.onDelete = callbacks.onDelete || (() => {});
     this.onArchive = callbacks.onArchive || (() => {});
     this.onPreview = callbacks.onPreview || (() => {});
+    this.onTagClick = callbacks.onTagClick || (() => {});
     this.element = null;
     this.render();
   }
@@ -43,6 +44,21 @@ class TaskCard {
         ]),
       ]),
       createElement('div', { className: 'task__description' }, ''),
+      (this.task.tags && this.task.tags.length > 0) ? createElement('div', {
+        style: { display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: '8px' },
+      }, this.task.tags.map(tag =>
+        createElement('span', {
+          style: {
+            fontSize: '11px', fontWeight: '600', padding: '1px 7px', borderRadius: '4px',
+            background: 'var(--status-todo)', color: '#ffffff', cursor: 'pointer',
+            transition: 'opacity 0.15s ease',
+          },
+          title: `按「${tag}」筛选`,
+          onclick: (e) => { e.stopPropagation(); this.onTagClick(tag); },
+          onmouseenter: (e) => { e.target.style.opacity = '0.7'; },
+          onmouseleave: (e) => { e.target.style.opacity = '1'; },
+        }, `#${tag}`)
+      )) : null,
       createElement('div', { className: 'task__stats' }, [
         createElement('span', { className: 'task__date-range' },
             `📅 ${formatDate(this.task.startDate || this.task.createdAt, 'YYYY-MM-DD')}` +

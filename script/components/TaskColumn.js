@@ -24,6 +24,7 @@ class TaskColumn {
     this.onPreviewTask = callbacks.onPreviewTask || (() => {});
     this.onDragStart = callbacks.onDragStart || (() => {});
     this.onArchiveTask = callbacks.onArchiveTask || (() => {});
+    this.onTagClick = callbacks.onTagClick || (() => {});
     this.getStatusText = callbacks.getStatusText || ((status) => status);
     this.onStatusTextUpdate = callbacks.onStatusTextUpdate || (() => {});
     this.tasks = [];
@@ -206,6 +207,7 @@ class TaskColumn {
         onPreview: (task, event) => this.onPreviewTask(task, event),
         onDragStart: () => this.onDragStart(),
         onArchive: (taskId) => this.onArchiveTask(taskId),
+        onTagClick: (tag) => this.onTagClick(tag),
       });
       this.cards.set(task.id, card);
       this.element.appendChild(card.getElement());
@@ -224,6 +226,7 @@ class TaskColumn {
       onPreview: (task, event) => this.onPreviewTask(task, event),
       onDragStart: () => this.onDragStart(),
       onArchive: (taskId) => this.onArchiveTask(taskId),
+      onTagClick: (tag) => this.onTagClick(tag),
     });
     this.cards.set(task.id, card);
     this.element.appendChild(card.getElement());

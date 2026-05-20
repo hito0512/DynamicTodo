@@ -26,6 +26,7 @@ class Task {
     this.startDate = data.startDate || null;
     this.endDate = data.endDate || null;
     this.archived = data.archived || false;
+    this.tags = Array.isArray(data.tags) ? data.tags : [];
   }
 
   /**
@@ -61,6 +62,7 @@ class Task {
       startDate: this.startDate,
       endDate: this.endDate,
       archived: this.archived,
+      tags: this.tags,
     };
   }
 
