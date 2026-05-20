@@ -13,6 +13,7 @@ class TaskCard {
     this.onArchive = callbacks.onArchive || (() => {});
     this.onPreview = callbacks.onPreview || (() => {});
     this.onTagClick = callbacks.onTagClick || (() => {});
+    this.onDragStart = callbacks.onDragStart || (() => {});
     this.element = null;
     this.render();
   }
@@ -139,6 +140,10 @@ class TaskCard {
     this.element.addEventListener('dblclick', (e) => {
       e.stopPropagation();
       this.onEdit(this.task);
+    });
+
+    this.element.addEventListener('dragstart', () => {
+      this.onDragStart();
     });
   }
 

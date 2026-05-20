@@ -18,6 +18,10 @@ class TaskBoard {
     this.element = null;
     this.activeView = 'board';
     this.boardYear = null; // null = 全部
+    this.filterTag = null;
+    this.selectedUnfinishYear = undefined;
+    this.selectedArchiveYear = undefined;
+    this.selectedStatsYear = undefined;
     this.init();
   }
 

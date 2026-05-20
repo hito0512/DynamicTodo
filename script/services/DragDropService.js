@@ -14,6 +14,13 @@ class DragDropService {
     this.draggedTask = null;
     this.draggedTaskId = null;
     this.originalStatus = null;
+    // 预绑定事件处理器，确保 removeEventListener 能正确解绑
+    this._handleDragStart = this.handleDragStart.bind(this);
+    this._handleDragOver = this.handleDragOver.bind(this);
+    this._handleDragEnter = this.handleDragEnter.bind(this);
+    this._handleDragLeave = this.handleDragLeave.bind(this);
+    this._handleDrop = this.handleDrop.bind(this);
+    this._handleDragEnd = this.handleDragEnd.bind(this);
     this.bindEvents();
   }
 
@@ -23,12 +30,12 @@ class DragDropService {
   bindEvents() {
     this.columns.forEach(column => {
       // 使用捕获模式绑定拖拽事件，优先处理避免被其他事件阻止
-      column.addEventListener('dragstart', this.handleDragStart.bind(this), true);
-      column.addEventListener('dragover', this.handleDragOver.bind(this), true);
-      column.addEventListener('dragenter', this.handleDragEnter.bind(this), true);
-      column.addEventListener('dragleave', this.handleDragLeave.bind(this), true);
-      column.addEventListener('drop', this.handleDrop.bind(this), true);
-      column.addEventListener('dragend', this.handleDragEnd.bind(this), true);
+      column.addEventListener('dragstart', this._handleDragStart, true);
+      column.addEventListener('dragover', this._handleDragOver, true);
+      column.addEventListener('dragenter', this._handleDragEnter, true);
+      column.addEventListener('dragleave', this._handleDragLeave, true);
+      column.addEventListener('drop', this._handleDrop, true);
+      column.addEventListener('dragend', this._handleDragEnd, true);
     });
   }
 
@@ -176,12 +183,12 @@ class DragDropService {
    */
   destroy() {
     this.columns.forEach(column => {
-      column.removeEventListener('dragstart', this.handleDragStart);
-      column.removeEventListener('dragover', this.handleDragOver);
-      column.removeEventListener('dragenter', this.handleDragEnter);
-      column.removeEventListener('dragleave', this.handleDragLeave);
-      column.removeEventListener('drop', this.handleDrop);
-      column.removeEventListener('dragend', this.handleDragEnd);
+      column.removeEventListener('dragstart', this._handleDragStart, true);
+      column.removeEventListener('dragover', this._handleDragOver, true);
+      column.removeEventListener('dragenter', this._handleDragEnter, true);
+      column.removeEventListener('dragleave', this._handleDragLeave, true);
+      column.removeEventListener('drop', this._handleDrop, true);
+      column.removeEventListener('dragend', this._handleDragEnd, true);
     });
     this.columns = [];
     this.onDrop = null;

@@ -53,6 +53,11 @@ async function initApp() {
 
     // 将看板挂载到容器
     const appContainer = document.querySelector('.app');
+    if (!appContainer) {
+      console.error('未找到 .app 容器元素');
+      showError('初始化失败：未找到容器元素');
+      return;
+    }
     appContainer.appendChild(taskBoard.getElement());
 
     // 初始化拖拽服务

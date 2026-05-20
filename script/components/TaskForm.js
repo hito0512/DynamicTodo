@@ -12,7 +12,7 @@ function formatDateInput(timestamp) {
 }
 
 import { validateTaskData } from '../utils/security.js';
-import { TASK_STATUS, STATUS_TEXT } from '../config/constants.js';
+import { STATUS_TEXT } from '../config/constants.js';
 
 /**
  * 任务表单组件（创建/编辑任务）

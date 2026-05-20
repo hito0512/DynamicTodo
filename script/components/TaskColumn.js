@@ -1,5 +1,15 @@
 import TaskCard from './TaskCard.js';
-import { createElement, clearElement } from '../utils/dom.js';
+import { createElement } from '../utils/dom.js';
+
+/**
+ * 状态图标映射
+ */
+const STATUS_ICON = {
+  'todo': '📖',
+  'doing': '🚴',
+  'done': '✅',
+  'unfinish': '⏳',
+};
 
 /**
  * 任务列组件
@@ -39,12 +49,7 @@ class TaskColumn {
    */
   render() {
     const statusText = this.getStatusText(this.status);
-    const iconMap = {
-      'todo': '📖',
-      'doing': '🚴',
-      'done': '✅',
-      'unfinish': '⏳',
-    };
+    const icon = STATUS_ICON[this.status];
 
     // 创建添加按钮
     const addBtn = createElement('button', {
@@ -68,7 +73,7 @@ class TaskColumn {
         marginRight: '8px'
       },
       title: '双击编辑标题'
-    }, `${iconMap[this.status]} ${statusText}`);
+    }, `${icon} ${statusText}`);
 
     // 双击编辑标题
     this.titleElement.addEventListener('dblclick', () => {
@@ -92,13 +97,7 @@ class TaskColumn {
    */
   enableEdit() {
     const currentText = this.getStatusText(this.status);
-    const iconMap = {
-      'todo': '📖',
-      'doing': '🚴',
-      'done': '✅',
-      'unfinish': '⏳',
-    };
-    const icon = iconMap[this.status];
+    const icon = STATUS_ICON[this.status];
 
     // 创建输入框
     const input = document.createElement('input');
@@ -168,13 +167,7 @@ class TaskColumn {
    * @param {string} newText 新的标题文本
    */
   updateTitle(newText) {
-    const iconMap = {
-      'todo': '📖',
-      'doing': '🚴',
-      'done': '✅',
-      'unfinish': '⏳',
-    };
-    const icon = iconMap[this.status];
+    const icon = STATUS_ICON[this.status];
     this.titleElement.textContent = `${icon} ${newText}`;
   }
 
