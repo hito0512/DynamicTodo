@@ -85,6 +85,58 @@
 
 ## 开发
 
+### cli-anything-siyuan
+
+基于 [CLI-Anything](https://github.com/HKUDS/CLI-Anything) 方法论构建的思源笔记 CLI 工具，通过 HTTP API 连接运行中的内核。可用于查询任务数据、调试和自动化操作。
+
+**安装位置**：`E:\workspace\github\siyuan\agent-harness`
+
+```bash
+cd E:\workspace\github\siyuan\agent-harness
+pip install -e ".[repl]"
+```
+
+**配置**：`~/.siyuan-cli.json`
+
+```json
+{
+  "host": "127.0.0.1",
+  "port": 6806,
+  "token": "思源设置-关于中获取的 API Token"
+}
+```
+
+### 常用开发命令
+
+```bash
+# 查看挂件块属性（任务数据存储于此）
+cli-anything-siyuan block get <block-id>
+
+# SQL 查询任务数据
+cli-anything-siyuan sql "SELECT * FROM blocks WHERE type='widget'"
+
+# 查看文档树定位挂件所在文档
+cli-anything-siyuan doc tree <notebook-id>
+
+# 全文搜索定位挂件
+cli-anything-siyuan search "DynamicTodo"
+
+# 搜索任务内容（调试用）
+cli-anything-siyuan search "任务标题"
+```
+
+### 数据调试
+
+DynamicTodo 将任务数据以 JSON 字符串存储在思源块属性 `custom-tasks` 中：
+
+```bash
+# 查看挂件块的完整属性
+cli-anything-siyuan block get <挂件块ID>
+
+# 直接读取 .sy 文件查找挂件
+find ~/SiYuan/data -name "*.sy" | xargs grep -l "DynamicTodo" 2>/dev/null
+```
+
 
 ## 更新记录
 
