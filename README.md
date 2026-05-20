@@ -39,32 +39,58 @@
 
 ```json
 {
+  "version": "1.0.0",
+  "exportTime": "2026-05-20T03:33:26.128Z",
   "tasks": [
     {
+      "id": "1779175153949-5rvsvbyc8",
       "title": "任务标题",
       "description": "支持 **Markdown** 的描述内容",
       "status": "todo",
-      "tags": ["工作", "前端"],
+      "createdAt": 1747612800000,
+      "updatedAt": 1747612800000,
+      "order": 0,
       "startDate": 1747612800000,
       "endDate": null,
-      "createdAt": 1747612800000
+      "archived": false,
+      "tags": ["工作", "前端"]
     }
-  ]
+  ],
+  "statusTexts": {
+    "todo": "计划中",
+    "doing": "进行中",
+    "done": "已完成",
+    "unfinish": "未完成"
+  }
 }
 ```
 
 ### 字段说明
 
+#### 顶层字段
+
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
+| `version` | `string` | 是 | 数据格式版本，固定 `"1.0.0"` |
+| `exportTime` | `string` | 是 | 导出时间 ISO 格式 |
+| `tasks` | `object[]` | 是 | 任务数组 |
+| `statusTexts` | `object` | 是 | 状态文字映射 |
+
+#### 任务字段
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | `string` | 是 | 唯一标识 |
 | `title` | `string` | 是 | 任务标题 |
 | `description` | `string` | 否 | Markdown 描述 |
 | `status` | `string` | 是 | `todo` / `doing` / `done` / `unfinish` |
-| `tags` | `string[]` | 否 | 标签数组 |
-| `startDate` | `number\|null` | 否 | 开始日期时间戳，默认创建时间 |
+| `createdAt` | `number` | 否 | 创建时间戳 |
+| `updatedAt` | `number` | 否 | 更新时间戳 |
+| `order` | `number` | 否 | 排序值 |
+| `startDate` | `number\|null` | 否 | 开始日期时间戳 |
 | `endDate` | `number\|null` | 否 | 结束日期时间戳 |
-| `createdAt` | `number` | 否 | 创建时间戳，自动生成 |
 | `archived` | `boolean` | 否 | 归档标记，默认 `false` |
+| `tags` | `string[]` | 否 | 标签数组 |
 
 ### 状态说明
 
