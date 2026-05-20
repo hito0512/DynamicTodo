@@ -29,6 +29,60 @@
 <img src="https://cdn.jsdelivr.net/gh/hito0512/ImageStore/2.png" />
 </div>
 
+## 数据结构 — 任务 JSON
+
+供外部工具/Agent 创建任务卡片时使用。
+
+### 创建任务
+
+```json
+{
+  "title": "任务标题",
+  "description": "支持 Markdown 的描述内容",
+  "status": "todo",
+  "tags": ["工作", "前端"],
+  "startDate": 1747612800000,
+  "endDate": null,
+  "createdAt": 1747612800000
+}
+```
+
+### 字段说明
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `title` | `string` | 是 | 任务标题 |
+| `description` | `string` | 否 | Markdown 描述 |
+| `status` | `string` | 是 | `todo` / `doing` / `done` / `unfinish` |
+| `tags` | `string[]` | 否 | 标签数组 |
+| `startDate` | `number\|null` | 否 | 开始日期时间戳，默认创建时间 |
+| `endDate` | `number\|null` | 否 | 结束日期时间戳 |
+| `createdAt` | `number` | 否 | 创建时间戳，自动生成 |
+| `archived` | `boolean` | 否 | 归档标记，默认 `false` |
+
+### 状态说明
+
+| 状态值 | 显示文本 | 说明 |
+|--------|----------|------|
+| `todo` | 计划中 | 待办任务 |
+| `doing` | 进行中 | 执行中任务 |
+| `done` | 已完成 | 已完成任务 |
+| `unfinish` | 未完成 | 未完成任务（如逾期） |
+
+### 持久化格式
+
+数据以 JSON 字符串存入思源笔记块属性 `custom-tasks` 中：
+
+```json
+{
+  "version": "1.0.0",
+  "tasks": [
+    { "id": "...", "title": "...", "status": "todo", ... }
+  ],
+  "updatedAt": 1747612800000
+}
+```
+
 ## 开发
 
 
