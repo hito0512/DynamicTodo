@@ -31,4 +31,13 @@
 - 任务卡片：标签徽章显示，点击直接按标签筛选
 - 归档面板：未完成/已完成分区，年份联动计数
 - 标签输入支持中英文逗号分隔
-  
+- README 更新：JSON 导入格式、从思源文档生成任务卡片流程、字段说明
+- 任务卡片 JSON 保存到桌面，禁止放入代码目录或提交 git
+- 清理 README 持久化格式和开发调试章节
+- temp/ 目录加入 gitignore
+- 修复 DragDropService 事件监听器泄漏（预绑定引用）
+- 修复拖拽预览不隐藏（TaskCard 增加 onDragStart 回调）
+- 清理未使用文件：style.js、validator.js
+- TaskBoard 属性默认值初始化
+- main.js 增加元素空值检查
+
