@@ -43,8 +43,8 @@ export const SELECTORS = {
 
 // UI常量
 export const UI_CONSTANTS = {
-  PREVIEW_OFFSET_X: 20,
-  PREVIEW_OFFSET_Y: 30,
+  PREVIEW_OFFSET_X: 8,
+  PREVIEW_OFFSET_Y: 8,
   PREVIEW_MAX_WIDTH: 400,
   TASK_DRAG_HANDLE: '.task__tags',
 };

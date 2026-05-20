@@ -30,7 +30,7 @@ class TaskPreview {
       id: 'taskPreview',
       style: {
         display: 'none',
-        position: 'absolute',
+        position: 'fixed',
         zIndex: 9999,
         maxWidth: `${UI_CONSTANTS.PREVIEW_MAX_WIDTH}px`,
       },
@@ -122,27 +122,30 @@ class TaskPreview {
       this.element.querySelector('#pcontent').textContent = task.description || '';
     }
 
-    // 定位
+    this.element.style.display = 'block';
+
+    // 定位：根据实际元素尺寸计算，确保不超出视口
     if (event) {
-      let x = event.clientX + UI_CONSTANTS.PREVIEW_OFFSET_X;
-      let y = event.clientY + UI_CONSTANTS.PREVIEW_OFFSET_Y;
+      const pw = this.element.offsetWidth;
+      const ph = this.element.offsetHeight;
+      const gap = 8;
+      const pad = 10;
 
-      // 防止超出屏幕
-      const maxX = window.innerWidth - UI_CONSTANTS.PREVIEW_MAX_WIDTH - 20;
-      const maxY = window.innerHeight - 300; // 预估预览高度
+      let x = event.clientX + gap;
+      let y = event.clientY + gap;
 
-      if (x > maxX) {
-        x = event.clientX - UI_CONSTANTS.PREVIEW_OFFSET_X - UI_CONSTANTS.PREVIEW_MAX_WIDTH;
+      // 超出右边界 → 翻到鼠标左侧
+      if (x + pw > window.innerWidth - pad) {
+        x = Math.max(pad, event.clientX - pw - gap);
       }
-      if (y > maxY) {
-        y = event.clientY - UI_CONSTANTS.PREVIEW_OFFSET_Y - 300;
+      // 超出下边界 → 翻到鼠标上方
+      if (y + ph > window.innerHeight - pad) {
+        y = Math.max(pad, event.clientY - ph - gap);
       }
 
       this.element.style.left = `${x}px`;
       this.element.style.top = `${y}px`;
     }
-
-    this.element.style.display = 'block';
   }
 
   /**
