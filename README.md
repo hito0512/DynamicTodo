@@ -84,8 +84,8 @@
 | `title` | `string` | 是 | 任务标题 |
 | `description` | `string` | 否 | Markdown 描述 |
 | `status` | `string` | 是 | `todo` / `doing` / `done` / `unfinish` |
-| `createdAt` | `number` | 否 | 创建时间戳 |
-| `updatedAt` | `number` | 否 | 更新时间戳 |
+| `createdAt` | `number` | 否 | 创建时间戳（毫秒，需用当前日期生成） |
+| `updatedAt` | `number` | 否 | 更新时间戳（同 createdAt） |
 | `order` | `number` | 否 | 排序值 |
 | `startDate` | `number\|null` | 否 | 开始日期时间戳 |
 | `endDate` | `number\|null` | 否 | 结束日期时间戳 |
