@@ -35,6 +35,7 @@ class TaskBoard {
         onDragStart: () => this.handleDragStart(),
         onArchiveTask: (taskId) => this.handleArchiveTask(taskId),
         onTagClick: (tag) => { this.filterTag = this.filterTag === tag ? null : tag; this.renderAllTasks(); },
+        onAddTag: (taskId, tag) => this.handleAddTag(taskId, tag),
         getStatusText: (status) => this.taskStore.getStatusText(status),
         onStatusTextUpdate: (status, newText) => this.handleStatusTextUpdate(status, newText),
       });
@@ -199,6 +200,11 @@ class TaskBoard {
 
   async loadTasks() {
     await this.taskStore.load();
+    // 首次加载时默认显示最近一年
+    if (this.boardYear === null) {
+      const years = this.getTaskYears();
+      this.boardYear = years[0] || null;
+    }
     this.refreshBoardToolbar();
     this.renderAllTasks();
     this.calendar.refresh();
@@ -211,7 +217,8 @@ class TaskBoard {
 
     while (container.firstChild) container.removeChild(container.firstChild);
 
-    if (!this.boardYear || (years.length > 0 && !years.includes(this.boardYear))) {
+    // 仅当当前选中的年份在数据中不存在时自动切换
+    if (this.boardYear !== null && years.length > 0 && !years.includes(this.boardYear)) {
       this.boardYear = years[0] || null;
     }
 
@@ -257,8 +264,49 @@ class TaskBoard {
     });
     container.appendChild(tagInput);
     if (this.filterTag) tagInput.value = this.filterTag;
+
+    // 常用标签（可拖拽到任务卡片上）
+    const commonTags = this.getCommonTags();
+    if (commonTags.length > 0) {
+      container.appendChild(
+        createElement('span', { style: { fontSize: '13px', color: '#94a3b8', marginLeft: '12px' } }, '🔥')
+      );
+      commonTags.forEach(({ tag, count }) => {
+        const chip = createElement('span', {
+          draggable: true,
+          title: `拖拽到任务卡片上即可添加标签「${tag}」`,
+          style: {
+            display: 'inline-flex', alignItems: 'center', gap: '3px',
+            padding: '2px 8px', borderRadius: '4px', fontSize: '12px',
+            background: 'var(--status-todo)', color: '#ffffff', fontWeight: '600',
+            cursor: 'grab', userSelect: 'none', whiteSpace: 'nowrap',
+            transition: 'opacity 0.15s ease',
+            opacity: '0.85',
+          },
+          onmouseenter: (e) => { e.target.style.opacity = '1'; },
+          onmouseleave: (e) => { e.target.style.opacity = '0.85'; },
+          ondragstart: (e) => {
+            e.dataTransfer.setData('application/x-tag', tag);
+            e.dataTransfer.effectAllowed = 'copy';
+          },
+        }, [`#${tag}`, createElement('span', { style: { fontSize: '10px', opacity: '0.7' } }, `${count}`)]);
+        container.appendChild(chip);
+      });
+    }
   }
 
+  getCommonTags() {
+    const tagCount = new Map();
+    this.taskStore.tasks.filter(t => !t.archived).forEach(task => {
+      (task.tags || []).forEach(tag => {
+        tagCount.set(tag, (tagCount.get(tag) || 0) + 1);
+      });
+    });
+    return [...tagCount.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([tag, count]) => ({ tag, count }));
+  }
   getTaskYears() {
     const years = this.taskStore.tasks
       .filter(t => !t.archived)
@@ -394,6 +442,14 @@ class TaskBoard {
       }
       this.calendar.refresh();
     }
+  }
+
+  async handleAddTag(taskId, tag) {
+    await this.taskStore.updateTask(taskId, {
+      tags: [...new Set([...(this.taskStore.tasks.find(t => t.id === taskId)?.tags || []), tag])],
+    });
+    this.renderAllTasks();
+    this.refreshBoardToolbar();
   }
 
   showRestoreOptions(task) {

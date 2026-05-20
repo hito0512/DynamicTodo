@@ -109,6 +109,16 @@ body {
   background: #ffffff;
 }
 
+/* 看板工具栏 — 悬浮在顶部，方便拖拽标签到卡片 */
+.board-toolbar {
+  position: sticky;
+  top: 42px;
+  z-index: 40;
+  background: #f1f5f9;
+  padding: 12px 20px 0 !important; /* 覆盖 inline style 中的 padding 位置 */
+  margin-bottom: 0;
+}
+
 .view-tab {
   padding: 8px 20px;
   border: 1px solid transparent;

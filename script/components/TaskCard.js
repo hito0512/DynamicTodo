@@ -13,6 +13,7 @@ class TaskCard {
     this.onArchive = callbacks.onArchive || (() => {});
     this.onPreview = callbacks.onPreview || (() => {});
     this.onTagClick = callbacks.onTagClick || (() => {});
+    this.onAddTag = callbacks.onAddTag || (() => {});
     this.onDragStart = callbacks.onDragStart || (() => {});
     this.element = null;
     this.render();
@@ -144,6 +145,42 @@ class TaskCard {
 
     this.element.addEventListener('dragstart', () => {
       this.onDragStart();
+    });
+
+    // 接受标签拖放
+    this.element.addEventListener('dragenter', (e) => {
+      if (e.dataTransfer && e.dataTransfer.types.includes('application/x-tag')) {
+        this.element.style.outline = '2px dashed var(--status-todo)';
+        this.element.style.outlineOffset = '2px';
+      }
+    });
+
+    this.element.addEventListener('dragover', (e) => {
+      if (e.dataTransfer && e.dataTransfer.types.includes('application/x-tag')) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.dataTransfer.dropEffect = 'copy';
+      }
+    });
+
+    this.element.addEventListener('dragleave', (e) => {
+      if (e.dataTransfer && e.dataTransfer.types.includes('application/x-tag') && !this.element.contains(e.relatedTarget)) {
+        this.element.style.outline = '';
+        this.element.style.outlineOffset = '';
+      }
+    });
+
+    this.element.addEventListener('drop', (e) => {
+      this.element.style.outline = '';
+      this.element.style.outlineOffset = '';
+      if (e.dataTransfer && e.dataTransfer.types.includes('application/x-tag')) {
+        e.preventDefault();
+        e.stopPropagation();
+        const tag = e.dataTransfer.getData('application/x-tag');
+        if (tag && (!this.task.tags || !this.task.tags.includes(tag))) {
+          this.onAddTag(this.task.id, tag);
+        }
+      }
     });
   }
 
