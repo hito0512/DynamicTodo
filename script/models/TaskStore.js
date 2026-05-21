@@ -3,248 +3,237 @@ import SiyuanApi from '../services/SiyuanApi.js';
 import { STATUS_TEXT, TASK_STATUS } from '../config/constants.js';
 
 /**
- * 任务数据存储层
- * 处理数据持久化、版本兼容和自动迁移
+ * 任务数据存储层 — 块属性存储方案
+ *
+ * 所有任务数据序列化为 JSON，存储在挂件块的 custom-tasks 属性中。
+ * 状态文本映射存储在挂件块的 custom-status-texts 属性中。
  */
 class TaskStore {
   static DATA_VERSION = '1.0.0';
-  static OLD_ATTR_KEYS = {
-    'custom-unfinish': 'unfinish',
-    'custom-doing': 'doing',
-    'custom-done': 'done',
-    'custom-todo': 'todo',
-  };
 
   /**
-   * 构造函数
-   * @param {string} blockId 挂件块ID
+   * @param {string} widgetBlockId 挂件块ID（存储所有数据）
    */
-  constructor(blockId) {
-    this.blockId = blockId;
+  constructor(widgetBlockId) {
+    this.widgetBlockId = widgetBlockId;
     this.api = SiyuanApi.getInstance();
     this.tasks = [];
-    this.isMigrated = false;
-    // 状态文本映射，优先使用自定义，否则用默认
     this.statusTexts = { ...STATUS_TEXT };
   }
 
   /**
-   * 加载任务数据，自动处理版本兼容
-   * @returns {Promise<Task[]>} 任务列表
+   * 加载任务数据
+   * 自动兼容三种数据格式（按优先级）：
+   *   1. custom-tasks（当前格式）
+   *   2. v0.3.0 子块存储（custom-data-doc-id → 子块）
+   *   3. 旧格式（custom-todo/doing/done/unfinish）
+   * 首次加载非当前格式数据时静默转换为 custom-tasks
+   * @returns {Promise<Task[]>}
    */
   async load() {
     try {
-      const attrs = await this.api.getBlockAttrs(this.blockId);
+      const widgetAttrs = await this.api.getBlockAttrs(this.widgetBlockId);
 
       // 加载自定义状态名称
-      if (attrs['custom-status-texts']) {
+      if (widgetAttrs['custom-status-texts']) {
         try {
-          const customStatusTexts = JSON.parse(attrs['custom-status-texts']);
+          const customStatusTexts = JSON.parse(widgetAttrs['custom-status-texts']);
           this.statusTexts = { ...STATUS_TEXT, ...customStatusTexts };
         } catch (e) {
           console.error('解析自定义状态名称失败:', e);
         }
       }
 
-      // 优先读取新格式数据
-      if (attrs['custom-tasks']) {
-        this.tasks = this.parseNewFormat(attrs['custom-tasks']);
-        this.isMigrated = true;
+      // 1. v0.3.0 子块存储（权威数据源）
+      //    必须优先于 custom-tasks，因为 v0.3.0 用户的 custom-tasks 可能是迁移前的过期数据
+      const dataDocId = widgetAttrs['custom-data-doc-id'];
+      if (dataDocId) {
+        try {
+          const converted = await this._migrateFromBlocks(dataDocId);
+          if (converted && converted.length > 0) {
+            this.tasks = converted;
+            await this._save();
+            // 转换完成后清理 data-doc-id，后续加载直接走 custom-tasks
+            await this.api.setBlockAttrs(this.widgetBlockId, {
+              'custom-data-doc-id': '',
+            });
+            return this.tasks;
+          }
+        } catch (e) {
+          console.warn('从子块转换数据失败:', e);
+        }
+      }
+
+      // 2. 当前格式 custom-tasks
+      if (widgetAttrs['custom-tasks']) {
+        try {
+          const data = JSON.parse(widgetAttrs['custom-tasks']);
+          if (data && Array.isArray(data.tasks)) {
+            this.tasks = data.tasks.map(taskData => new Task(taskData));
+          }
+        } catch (e) {
+          console.error('解析任务数据失败:', e);
+        }
         return this.tasks;
       }
 
-      // 读取旧格式数据并迁移
-      this.tasks = await this.migrateFromOldFormat(attrs);
-      this.isMigrated = true;
+      // 3. 旧格式 custom-todo/doing/done/unfinish
+      const oldFormatKeys = { todo: 'custom-todo', doing: 'custom-doing', done: 'custom-done', unfinish: 'custom-unfinish' };
+      let hasOldData = false;
+      const convertedTasks = [];
 
-      // 自动保存新格式数据
-      await this.save();
+      for (const [status, key] of Object.entries(oldFormatKeys)) {
+        if (widgetAttrs[key]) {
+          try {
+            const oldTasks = JSON.parse(widgetAttrs[key]);
+            if (Array.isArray(oldTasks) && oldTasks.length > 0) {
+              hasOldData = true;
+              oldTasks.forEach(oldTask => {
+                convertedTasks.push(Task.fromOldFormat(oldTask, status, convertedTasks.length));
+              });
+            }
+          } catch (e) {
+            console.error(`解析旧格式 ${key} 失败:`, e);
+          }
+        }
+      }
 
-      // 保留旧数据备份3个版本，暂不删除
-      // await this.backupOldData(attrs);
+      if (hasOldData && convertedTasks.length > 0) {
+        this.tasks = convertedTasks;
+        await this._save();
+      }
 
       return this.tasks;
     } catch (error) {
       console.error('加载任务数据失败:', error);
-      // 加载失败时返回空数组，避免崩溃
       return [];
     }
   }
 
   /**
-   * 保存任务数据
-   * @param {Task[]} [tasks] 要保存的任务列表，不传则使用当前tasks
-   * @returns {Promise<void>}
+   * 从 v0.3.0 子块存储读取任务，转换为 Task 对象数组
+   * @param {string} dataDocId 数据文档 ID
+   * @returns {Promise<Task[]|null>}
    */
-  async save(tasks) {
-    if (tasks) {
-      this.tasks = tasks;
-    }
+  async _migrateFromBlocks(dataDocId) {
+    const children = await this.api.getBlockChildren(dataDocId, 'p');
+    if (!children || children.length === 0) return null;
 
-    try {
-      const data = {
-        version: TaskStore.DATA_VERSION,
-        tasks: this.tasks.map(task => task.toJSON()),
-        updatedAt: Date.now(),
-      };
-
-      await this.api.setBlockAttrs(this.blockId, {
-        'custom-tasks': JSON.stringify(data),
-      });
-    } catch (error) {
-      console.error('保存任务数据失败:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * 解析新格式数据
-   * @param {string} jsonStr JSON字符串
-   * @returns {Task[]} 任务列表
-   */
-  parseNewFormat(jsonStr) {
-    try {
-      const data = JSON.parse(jsonStr);
-      if (!data || !Array.isArray(data.tasks)) {
-        return [];
-      }
-
-      return data.tasks.map(taskData => new Task(taskData));
-    } catch (error) {
-      console.error('解析新格式数据失败:', error);
-      return [];
-    }
-  }
-
-  /**
-   * 从旧格式迁移数据
-   * @param {object} attrs 块属性对象
-   * @returns {Promise<Task[]>} 迁移后的任务列表
-   */
-  async migrateFromOldFormat(attrs) {
     const tasks = [];
-    let order = 0;
+    for (const child of children) {
+      try {
+        const attrs = await this.api.getBlockAttrs(child.id);
+        if (!attrs['custom-task-id']) continue;
 
-    for (const [attrKey, status] of Object.entries(TaskStore.OLD_ATTR_KEYS)) {
-      if (attrs[attrKey]) {
-        try {
-          const oldTasks = JSON.parse(attrs[attrKey]);
-          if (Array.isArray(oldTasks)) {
-            oldTasks.forEach(oldTask => {
-              const task = Task.fromOldFormat(oldTask, status, order++);
-              tasks.push(task);
-            });
-          }
-        } catch (error) {
-          console.error(`解析旧格式数据失败 ${attrKey}:`, error);
-        }
+        tasks.push(new Task({
+          id: attrs['custom-task-id'],
+          title: child.content || attrs['custom-title'] || '',
+          description: attrs['custom-description'] || '',
+          status: attrs['custom-status'] || 'todo',
+          createdAt: parseInt(attrs['custom-created-at']) || Date.now(),
+          updatedAt: parseInt(attrs['custom-updated-at']) || Date.now(),
+          order: parseInt(attrs['custom-order']) || 0,
+          startDate: attrs['custom-start-date'] ? parseInt(attrs['custom-start-date']) : null,
+          endDate: attrs['custom-end-date'] ? parseInt(attrs['custom-end-date']) : null,
+          archived: attrs['custom-archived'] === 'true',
+          tags: attrs['custom-tags'] ? JSON.parse(attrs['custom-tags']) : [],
+        }));
+      } catch (e) {
+        console.warn(`跳过子块 ${child.id}:`, e);
       }
     }
 
-    return tasks;
+    return tasks.length > 0 ? tasks : null;
   }
 
   /**
-   * 备份旧数据
-   * @param {object} attrs 旧属性对象
-   * @returns {Promise<void>}
+   * 保存所有任务到挂件块 custom-tasks 属性
    */
-  async backupOldData(attrs) {
-    const backupAttrs = {};
-    for (const [attrKey] of Object.entries(TaskStore.OLD_ATTR_KEYS)) {
-      if (attrs[attrKey]) {
-        backupAttrs[`${attrKey}-backup-v1`] = attrs[attrKey];
-      }
-    }
-
-    if (Object.keys(backupAttrs).length > 0) {
-      await this.api.setBlockAttrs(this.blockId, backupAttrs);
-    }
+  async _save() {
+    const data = {
+      version: TaskStore.DATA_VERSION,
+      tasks: this.tasks.map(t => t.toJSON()),
+      updatedAt: Date.now(),
+    };
+    await this.api.setBlockAttrs(this.widgetBlockId, {
+      'custom-tasks': JSON.stringify(data),
+    });
   }
 
   /**
    * 添加新任务
-   * @param {object} taskData 任务数据
-   * @returns {Promise<Task>} 新创建的任务
+   * @param {object} taskData
+   * @returns {Promise<Task>}
    */
   async addTask(taskData) {
     const task = new Task(taskData);
-    // 设置排序为最后
     task.order = this.tasks.length > 0
       ? Math.max(...this.tasks.map(t => t.order)) + 1
       : 0;
 
     this.tasks.push(task);
-    await this.save();
+    await this._save();
     return task;
   }
 
   /**
    * 更新任务
-   * @param {string} taskId 任务ID
-   * @param {object} updateData 要更新的字段
-   * @returns {Promise<Task|null>} 更新后的任务，找不到返回null
+   * @param {string} taskId
+   * @param {object} updateData
+   * @returns {Promise<Task|null>}
    */
   async updateTask(taskId, updateData) {
     const taskIndex = this.tasks.findIndex(t => t.id === taskId);
-    if (taskIndex === -1) {
-      return null;
-    }
+    if (taskIndex === -1) return null;
 
     this.tasks[taskIndex].update(updateData);
-    await this.save();
+    await this._save();
+
     return this.tasks[taskIndex];
   }
 
   /**
    * 删除任务
-   * @param {string} taskId 任务ID
-   * @returns {Promise<boolean>} 删除成功返回true
+   * @param {string} taskId
+   * @returns {Promise<boolean>}
    */
   async deleteTask(taskId) {
-    const initialLength = this.tasks.length;
+    const task = this.tasks.find(t => t.id === taskId);
+    if (!task) return false;
+
     this.tasks = this.tasks.filter(t => t.id !== taskId);
-
-    if (this.tasks.length === initialLength) {
-      return false;
-    }
-
-    await this.save();
+    await this._save();
     return true;
   }
 
   /**
-   * 更新任务排序
-   * @param {string} taskId 任务ID
+   * 更新任务排序和状态（拖拽后）
+   * @param {string} taskId 拖拽的任务ID
    * @param {string} newStatus 新状态
-   * @param {string[]} taskIds 新的任务ID顺序
-   * @returns {Promise<boolean>} 更新成功返回true
+   * @param {string[]} taskIds 列中所有任务ID的新顺序
+   * @returns {Promise<boolean>}
    */
   async updateTaskOrder(taskId, newStatus, taskIds) {
     const task = this.tasks.find(t => t.id === taskId);
-    if (!task) {
-      return false;
-    }
+    if (!task) return false;
 
-    // 更新任务状态
     task.status = newStatus;
 
-    // 根据新顺序更新所有任务的order值
     taskIds.forEach((id, index) => {
-      const t = this.tasks.find(task => task.id === id);
+      const t = this.tasks.find(t => t.id === id);
       if (t) {
         t.order = index;
       }
     });
 
-    await this.save();
+    await this._save();
     return true;
   }
 
   /**
    * 按状态获取任务列表
-   * @param {string} status 任务状态
-   * @returns {Task[]} 该状态下的任务列表，按order排序
+   * @param {string} status
+   * @returns {Task[]}
    */
   getTasksByStatus(status) {
     return this.tasks
@@ -263,7 +252,7 @@ class TaskStore {
     if (!task || task.archived) return false;
     task.archived = true;
     task.updatedAt = Date.now();
-    await this.save();
+    await this._save();
     return true;
   }
 
@@ -272,54 +261,29 @@ class TaskStore {
     if (!task || !task.archived) return false;
     task.archived = false;
     task.updatedAt = Date.now();
-    await this.save();
+    await this._save();
     return true;
   }
 
-  /**
-   * 获取状态显示文本
-   * @param {string} status 状态值
-   * @returns {string} 显示文本
-   */
   getStatusText(status) {
     return this.statusTexts[status] || STATUS_TEXT[status] || status;
   }
 
-  /**
-   * 获取所有状态文本映射
-   * @returns {object} 状态文本映射
-   */
   getStatusTexts() {
     return { ...this.statusTexts };
   }
 
-  /**
-   * 保存自定义状态文本
-   * @param {string} status 状态值
-   * @param {string} text 自定义显示文本
-   * @returns {Promise<void>}
-   */
   async saveStatusText(status, text) {
     if (!Object.values(TASK_STATUS).includes(status)) {
       throw new Error(`无效的状态值: ${status}`);
     }
 
     this.statusTexts[status] = text;
-
-    try {
-      await this.api.setBlockAttrs(this.blockId, {
-        'custom-status-texts': JSON.stringify(this.statusTexts),
-      });
-    } catch (error) {
-      console.error('保存状态文本失败:', error);
-      throw error;
-    }
+    await this.api.setBlockAttrs(this.widgetBlockId, {
+      'custom-status-texts': JSON.stringify(this.statusTexts),
+    });
   }
 
-  /**
-   * 导出全部数据（任务+自定义状态文本）
-   * @returns {object} 导出数据对象
-   */
   exportData() {
     return {
       version: TaskStore.DATA_VERSION,
@@ -329,55 +293,42 @@ class TaskStore {
     };
   }
 
-  /**
-   * 导入数据
-   * @param {object} data 导入的数据对象
-   * @returns {Promise<boolean>} 导入成功返回true
-   */
   async importData(data) {
     try {
-      // 验证数据格式
-      if (!data || !Array.isArray(data.tasks)) {
-        return false;
-      }
+      if (!data || !Array.isArray(data.tasks)) return false;
 
-      // 验证每个任务格式
       const validTasks = data.tasks.filter(taskData =>
         taskData.id && taskData.title && Object.values(TASK_STATUS).includes(taskData.status)
       );
 
-      if (validTasks.length === 0) {
-        return false;
-      }
+      if (validTasks.length === 0) return false;
 
-      // 合并导入的任务到现有数据（按标题去重，导入的覆盖已有）
       const existingByTitle = new Map(this.tasks.map(t => [t.title, t]));
-      validTasks.forEach(taskData => {
+
+      for (const taskData of validTasks) {
         const existing = existingByTitle.get(taskData.title);
         if (existing) {
-          // 保留原有 ID 和时间，更新其他字段
           existing.description = taskData.description || '';
           existing.status = taskData.status;
           existing.startDate = taskData.startDate || null;
           existing.endDate = taskData.endDate || null;
+          existing.tags = Array.isArray(taskData.tags) ? taskData.tags : [];
           existing.updatedAt = Date.now();
         } else {
-          existingByTitle.set(taskData.title, new Task(taskData));
+          const task = new Task(taskData);
+          this.tasks.push(task);
         }
-      });
-      this.tasks = Array.from(existingByTitle.values());
+      }
 
-      // 导入状态文本（如果有）
+      await this._save();
+
       if (data.statusTexts && typeof data.statusTexts === 'object') {
         this.statusTexts = { ...STATUS_TEXT, ...data.statusTexts };
-        // 保存自定义状态文本
-        await this.api.setBlockAttrs(this.blockId, {
+        await this.api.setBlockAttrs(this.widgetBlockId, {
           'custom-status-texts': JSON.stringify(this.statusTexts),
         });
       }
 
-      // 保存到块属性
-      await this.save();
       return true;
     } catch (error) {
       console.error('导入数据失败:', error);

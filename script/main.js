@@ -4,6 +4,7 @@
 import TaskStore from './models/TaskStore.js';
 import TaskBoard from './components/TaskBoard.js';
 import DragDropService from './services/DragDropService.js';
+import SiyuanApi from './services/SiyuanApi.js';
 import { getWidgetBlockInfo } from './util.js';
 
 // 全局变量
@@ -17,6 +18,7 @@ let dragDropService = null;
 async function initApp() {
   try {
     let blockId = null;
+    let isTestMode = false;
 
     // 尝试获取挂件块ID（思源环境）
     try {
@@ -24,8 +26,8 @@ async function initApp() {
       blockId = blockInfo?.id;
     } catch (e) {
       console.log('非思源挂件环境，使用测试模式');
-      // 浏览器直接打开时使用模拟ID
       blockId = 'test-block-id';
+      isTestMode = true;
     }
 
     if (!blockId) {
@@ -38,8 +40,7 @@ async function initApp() {
     taskStore = new TaskStore(blockId);
 
     // 测试环境下禁用API调用，使用内存存储
-    if (blockId === 'test-block-id') {
-      // 模拟API返回空数据
+    if (isTestMode) {
       taskStore.api.getBlockAttrs = async () => ({});
       taskStore.api.setBlockAttrs = async () => {};
       console.log('测试模式：数据仅保存在内存中，刷新后丢失');

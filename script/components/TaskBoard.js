@@ -55,14 +55,6 @@ class TaskBoard {
     });
 
     this.render();
-
-    // 点击设置菜单外部时关闭
-    document.addEventListener('click', (e) => {
-      const wrapper = this.element?.querySelector('.settings-wrapper');
-      if (wrapper && !wrapper.contains(e.target)) {
-        this.closeSettingsMenu();
-      }
-    });
   }
 
   render() {
@@ -89,46 +81,12 @@ class TaskBoard {
           className: 'view-tab' + (this.activeView === 'tags' ? ' view-tab--active' : ''),
           onclick: () => this.switchView('tags'),
         }, '🏷️ 标签'),
-        // 设置按钮（最右侧）
-        createElement('div', {
-          className: 'settings-wrapper',
-          style: { position: 'relative', marginLeft: 'auto' },
-        }, [
-          createElement('button', {
-            className: 'view-tab settings-btn',
-            onclick: (e) => this.toggleSettingsMenu(e),
-          }, '⚙️'),
-          createElement('div', {
-            className: 'settings-dropdown',
-            style: {
-              display: 'none', position: 'absolute', right: '0', top: '100%',
-              background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: '100',
-              minWidth: '140px', overflow: 'hidden',
-            },
-          }, [
-            createElement('button', {
-              style: {
-                display: 'block', width: '100%', padding: '10px 16px', border: 'none',
-                background: 'transparent', cursor: 'pointer', fontSize: '14px',
-                textAlign: 'left', color: '#1e293b',
-              },
-              onclick: (e) => { e.stopPropagation(); this.handleExportData(); },
-              onmouseenter: (e) => { e.target.style.background = '#f1f5f9'; },
-              onmouseleave: (e) => { e.target.style.background = 'transparent'; },
-            }, '📤 导出数据'),
-            createElement('button', {
-              style: {
-                display: 'block', width: '100%', padding: '10px 16px', border: 'none',
-                background: 'transparent', cursor: 'pointer', fontSize: '14px',
-                textAlign: 'left', color: '#1e293b', borderTop: '1px solid #f1f3f5',
-              },
-              onclick: (e) => { e.stopPropagation(); this.handleImportData(); },
-              onmouseenter: (e) => { e.target.style.background = '#f1f5f9'; },
-              onmouseleave: (e) => { e.target.style.background = 'transparent'; },
-            }, '📥 导入数据'),
-          ]),
-        ]),
+        // 设置面板标签（最右侧）
+        createElement('button', {
+          className: 'view-tab' + (this.activeView === 'settings' ? ' view-tab--active' : ''),
+          style: { marginLeft: 'auto' },
+          onclick: () => this.switchView('settings'),
+        }, '⚙️ 设置'),
       ]),
       // 看板内容区
       createElement('div', {
@@ -158,6 +116,11 @@ class TaskBoard {
         className: 'view-content' + (this.activeView === 'tags' ? '' : ' view-content--hidden'),
         id: 'tagsPanel',
       }),
+      // 设置面板
+      createElement('div', {
+        className: 'view-content' + (this.activeView === 'settings' ? '' : ' view-content--hidden'),
+        id: 'settingsPanel',
+      }),
       // 弹窗
       this.taskForm.getElement(),
       this.taskPreview.getElement(),
@@ -172,13 +135,13 @@ class TaskBoard {
 
   refreshView() {
     const viewContents = this.element.querySelectorAll('.view-content');
-    const views = ['board', 'calendar', 'archive', 'stats', 'tags'];
+    const views = ['board', 'calendar', 'archive', 'stats', 'tags', 'settings'];
     viewContents.forEach((el, index) => {
       el.classList.toggle('view-content--hidden', this.activeView !== views[index]);
     });
 
     const tabs = this.element.querySelectorAll('.view-tab');
-    const tabViews = ['board', 'calendar', 'archive', 'stats', 'tags'];
+    const tabViews = ['board', 'calendar', 'archive', 'stats', 'tags', 'settings'];
     tabs.forEach((tab, index) => {
       if (index < tabViews.length) {
         tab.classList.toggle('view-tab--active', this.activeView === tabViews[index]);
@@ -195,6 +158,8 @@ class TaskBoard {
       this.renderStatsPanel();
     } else if (this.activeView === 'tags') {
       this.renderTagsPanel();
+    } else if (this.activeView === 'settings') {
+      this.renderSettingsPanel();
     }
   }
 
@@ -372,20 +337,29 @@ class TaskBoard {
   }
 
   handleEditTask(task) {
-    const position = {
-      x: Math.max(0, (window.innerWidth - 420) / 2),
-      y: Math.max(0, (window.innerHeight - 480) / 2),
-    };
-    this.taskForm.openEdit(task, position);
+    try {
+      const position = {
+        x: Math.max(0, (window.innerWidth - 420) / 2),
+        y: Math.max(0, (window.innerHeight - 480) / 2),
+      };
+      this.taskForm.openEdit(task, position);
+    } catch (err) {
+      console.error('编辑任务异常:', err);
+      alert('编辑失败：' + err.message);
+    }
   }
 
   async handleDeleteTask(taskId) {
-    const success = await this.taskStore.deleteTask(taskId);
-    if (success) {
-      for (const column of this.columns.values()) {
-        if (column.removeTask(taskId)) break;
+    try {
+      const success = await this.taskStore.deleteTask(taskId);
+      if (success) {
+        for (const column of this.columns.values()) {
+          if (column.removeTask(taskId)) break;
+        }
+        this.calendar.refresh();
       }
-      this.calendar.refresh();
+    } catch (err) {
+      alert(err.message);
     }
   }
 
@@ -401,18 +375,26 @@ class TaskBoard {
   }
 
   async handleFormSubmit(taskData) {
-    const newTask = await this.taskStore.addTask(taskData);
-    if (newTask) {
-      const column = this.columns.get(newTask.status);
-      column.addTask(newTask);
-      this.calendar.refresh();
+    try {
+      const newTask = await this.taskStore.addTask(taskData);
+      if (newTask) {
+        const column = this.columns.get(newTask.status);
+        column.addTask(newTask);
+        this.calendar.refresh();
+      }
+    } catch (err) {
+      alert(err.message);
     }
   }
 
   async handleFormUpdate(taskId, updateData) {
-    await this.taskStore.updateTask(taskId, updateData);
-    this.renderAllTasks();
-    this.calendar.refresh();
+    try {
+      await this.taskStore.updateTask(taskId, updateData);
+      this.renderAllTasks();
+      this.calendar.refresh();
+    } catch (err) {
+      alert(err.message);
+    }
   }
 
   getElement() { return this.element; }
@@ -422,8 +404,12 @@ class TaskBoard {
   }
 
   async handleTaskDrop(taskId, newStatus, taskIds) {
-    const success = await this.taskStore.updateTaskOrder(taskId, newStatus, taskIds);
-    if (success) this.renderAllTasks();
+    try {
+      const success = await this.taskStore.updateTaskOrder(taskId, newStatus, taskIds);
+      if (success) this.renderAllTasks();
+    } catch (err) {
+      alert(err.message);
+    }
   }
 
   async handleStatusTextUpdate(status, newText) {
@@ -435,21 +421,29 @@ class TaskBoard {
   }
 
   async handleArchiveTask(taskId) {
-    const success = await this.taskStore.archiveTask(taskId);
-    if (success) {
-      for (const column of this.columns.values()) {
-        if (column.removeTask(taskId)) break;
+    try {
+      const success = await this.taskStore.archiveTask(taskId);
+      if (success) {
+        for (const column of this.columns.values()) {
+          if (column.removeTask(taskId)) break;
+        }
+        this.calendar.refresh();
       }
-      this.calendar.refresh();
+    } catch (err) {
+      alert(err.message);
     }
   }
 
   async handleAddTag(taskId, tag) {
-    await this.taskStore.updateTask(taskId, {
-      tags: [...new Set([...(this.taskStore.tasks.find(t => t.id === taskId)?.tags || []), tag])],
-    });
-    this.renderAllTasks();
-    this.refreshBoardToolbar();
+    try {
+      await this.taskStore.updateTask(taskId, {
+        tags: [...new Set([...(this.taskStore.tasks.find(t => t.id === taskId)?.tags || []), tag])],
+      });
+      this.renderAllTasks();
+      this.refreshBoardToolbar();
+    } catch (err) {
+      alert(err.message);
+    }
   }
 
   showRestoreOptions(task) {
@@ -537,33 +531,41 @@ class TaskBoard {
   }
 
   async handleRestoreTask(taskId) {
-    const success = await this.taskStore.restoreTask(taskId);
-    if (success) {
-      this.refreshBoardToolbar();
-      this.renderAllTasks();
-      this.calendar.refresh();
-      this.renderArchivePanel();
+    try {
+      const success = await this.taskStore.restoreTask(taskId);
+      if (success) {
+        this.refreshBoardToolbar();
+        this.renderAllTasks();
+        this.calendar.refresh();
+        this.renderArchivePanel();
+      }
+    } catch (err) {
+      alert(err.message);
     }
   }
 
   async handleRestoreAsNew(task) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const newTask = await this.taskStore.addTask({
-      title: task.title,
-      description: task.description,
-      status: 'todo',
-      startDate: today.getTime(),
-      endDate: null,
-      archived: false,
-    });
-    if (newTask) {
-      // 删除原归档任务
-      await this.taskStore.deleteTask(task.id);
-      const column = this.columns.get('todo');
-      if (column) column.addTask(newTask);
-      this.calendar.refresh();
-      this.renderArchivePanel();
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const newTask = await this.taskStore.addTask({
+        title: task.title,
+        description: task.description,
+        status: 'todo',
+        startDate: today.getTime(),
+        endDate: null,
+        archived: false,
+      });
+      if (newTask) {
+        // 删除原归档任务
+        await this.taskStore.deleteTask(task.id);
+        const column = this.columns.get('todo');
+        if (column) column.addTask(newTask);
+        this.calendar.refresh();
+        this.renderArchivePanel();
+      }
+    } catch (err) {
+      alert(err.message);
     }
   }
 
@@ -1005,55 +1007,74 @@ class TaskBoard {
     this.renderAllTasks();
   }
 
-  toggleSettingsMenu(e) {
-    e.stopPropagation();
-    const dropdown = this.element.querySelector('.settings-dropdown');
-    const isOpen = dropdown.style.display !== 'none';
-    dropdown.style.display = isOpen ? 'none' : 'block';
-  }
+  renderSettingsPanel() {
+    const panel = this.element.querySelector('#settingsPanel');
+    if (!panel || panel.dataset.rendered) return;
+    panel.dataset.rendered = 'true';
 
-  handleExportData() {
-    const data = this.taskStore.exportData();
-    const json = JSON.stringify(data, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `DynamicTodo_export_${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    this.closeSettingsMenu();
-  }
+    panel.innerHTML = `
+      <div style="padding:20px;max-width:600px;">
+        <h3 style="margin:0 0 8px;font-size:16px;color:#1e293b;">⚙️ 设置</h3>
+        <p style="font-size:13px;color:#64748b;margin:0 0 20px;line-height:1.5;">
+          所有任务数据存储在挂件块的属性中，导出为 JSON 可备份或迁移到其他挂件。
+        </p>
 
-  handleImportData() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.onchange = async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      try {
-        const text = await file.text();
-        const data = JSON.parse(text);
-        const success = await this.taskStore.importData(data);
-        if (success) {
-          this.refreshBoardToolbar();
-          this.renderAllTasks();
-          this.calendar.refresh();
-        } else {
-          alert('导入失败：数据格式不正确');
-        }
-      } catch (err) {
-        alert('导入失败：' + err.message);
-      }
+        <!-- 导出数据 -->
+        <div style="background:#f8fafc;border-radius:8px;padding:16px;margin-bottom:12px;">
+          <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:4px;">📤 导出数据</div>
+          <p style="font-size:13px;color:#64748b;margin:0 0 8px;">将所有任务导出为 JSON 文件。</p>
+          <button id="settingsExportBtn"
+            style="padding:8px 16px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;cursor:pointer;font-size:14px;color:#1e293b;">导出 JSON</button>
+        </div>
+
+        <!-- 导入数据 -->
+        <div style="background:#f8fafc;border-radius:8px;padding:16px;">
+          <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:4px;">📥 导入数据</div>
+          <p style="font-size:13px;color:#64748b;margin:0 0 8px;">从 JSON 文件导入任务（按标题去重）。</p>
+          <button id="settingsImportBtn"
+            style="padding:8px 16px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;cursor:pointer;font-size:14px;color:#1e293b;">导入 JSON</button>
+        </div>
+      </div>
+    `;
+
+    // 导出
+    panel.querySelector('#settingsExportBtn').onclick = () => {
+      const data = this.taskStore.exportData();
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `DynamicTodo_export_${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
     };
-    input.click();
-    this.closeSettingsMenu();
-  }
 
-  closeSettingsMenu() {
-    const dropdown = this.element.querySelector('.settings-dropdown');
-    if (dropdown) dropdown.style.display = 'none';
+    // 导入
+    panel.querySelector('#settingsImportBtn').onclick = () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+          const text = await file.text();
+          const data = JSON.parse(text);
+          const success = await this.taskStore.importData(data);
+          if (success) {
+            this.refreshBoardToolbar();
+            this.renderAllTasks();
+            this.calendar.refresh();
+          } else {
+            alert('导入失败：数据格式不正确');
+          }
+        } catch (err) {
+          alert('导入失败：' + err.message);
+        }
+      };
+      input.click();
+    };
   }
 
   destroy() {

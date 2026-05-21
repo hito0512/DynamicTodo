@@ -27,6 +27,7 @@ class Task {
     this.endDate = data.endDate || null;
     this.archived = data.archived || false;
     this.tags = Array.isArray(data.tags) ? data.tags : [];
+    this.blockId = data.blockId || null;
   }
 
   /**
@@ -51,7 +52,7 @@ class Task {
    * @returns {object} 任务数据对象
    */
   toJSON() {
-    return {
+    const json = {
       id: this.id,
       title: this.title,
       description: this.description,
@@ -64,6 +65,8 @@ class Task {
       archived: this.archived,
       tags: this.tags,
     };
+    if (this.blockId) json.blockId = this.blockId;
+    return json;
   }
 
   /**
