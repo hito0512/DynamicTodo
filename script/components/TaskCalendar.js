@@ -9,6 +9,7 @@ class TaskCalendar {
     this.taskStore = taskStore;
     this.onEditTask = callbacks.onEditTask || (() => {});
     this.onPreviewTask = callbacks.onPreviewTask || (() => {});
+    this.onCreateTask = callbacks.onCreateTask || (() => {});
     this.currentDate = new Date();
     this.currentDate.setDate(1);
     this.selectedDate = null;
@@ -142,6 +143,10 @@ class TaskCalendar {
       cells.push(createElement('div', {
         className: dayClasses.join(' '),
         onclick: () => this.selectDay(year, month, d),
+        ondblclick: () => {
+          const date = new Date(year, month, d);
+          this.onCreateTask(date.getTime());
+        },
       }, [
         createElement('span', { className: 'calendar__day-number' }, `${d}`),
         ...taskItems,

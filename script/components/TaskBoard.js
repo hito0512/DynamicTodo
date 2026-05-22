@@ -52,6 +52,7 @@ class TaskBoard {
     this.calendar = new TaskCalendar(this.taskStore, {
       onEditTask: (task) => this.handleEditTask(task),
       onPreviewTask: (task, event) => this.handlePreviewTask(task, event),
+      onCreateTask: (startDate) => this.handleAddTaskWithDate(startDate),
     });
 
     this.render();
@@ -334,6 +335,14 @@ class TaskBoard {
       y: Math.max(0, (window.innerHeight - 480) / 2),
     };
     this.taskForm.openCreate(status, position);
+  }
+
+  handleAddTaskWithDate(startDate) {
+    const position = {
+      x: Math.max(0, (window.innerWidth - 420) / 2),
+      y: Math.max(0, (window.innerHeight - 480) / 2),
+    };
+    this.taskForm.openCreate('todo', position, startDate);
   }
 
   handleEditTask(task) {

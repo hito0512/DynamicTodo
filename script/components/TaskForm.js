@@ -65,7 +65,6 @@ class TaskForm {
             type: 'date',
             id: 'taskstart',
             className: 'form-input',
-            max: formatDateInput(Date.now()),
           }),
         ]),
         createElement('div', { className: 'form-group' }, [
@@ -168,7 +167,7 @@ class TaskForm {
     });
   }
 
-  openCreate(defaultStatus = 'todo', position = { x: 100, y: 100 }) {
+  openCreate(defaultStatus = 'todo', position = { x: 100, y: 100 }, startDate) {
     this.currentTask = null;
     this.isOpen = true;
 
@@ -176,7 +175,7 @@ class TaskForm {
     this.element.querySelector('#taskcontent').value = '';
     this.element.querySelector('#tasktags').value = '';
     this.element.querySelector('#taskType').value = defaultStatus;
-    this.element.querySelector('#taskstart').value = formatDateInput(Date.now());
+    this.element.querySelector('#taskstart').value = startDate ? formatDateInput(startDate) : formatDateInput(Date.now());
     this.element.querySelector('#taskend').value = '';
 
     this.element.querySelector('#submit').style.display = '';
