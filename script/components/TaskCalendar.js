@@ -48,7 +48,7 @@ class TaskCalendar {
   }
 
   renderWeekdays() {
-    const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+    const weekdays = ['一', '二', '三', '四', '五', '六', '日'];
     return createElement('div', { className: 'calendar__weekdays' },
       weekdays.map(d => createElement('span', { className: 'calendar__weekday' }, d))
     );
@@ -67,7 +67,7 @@ class TaskCalendar {
     const year = this.currentDate.getFullYear();
     const month = this.currentDate.getMonth();
 
-    const firstDay = new Date(year, month, 1).getDay();
+    const firstDay = (new Date(year, month, 1).getDay() + 6) % 7;
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const today = new Date();
     const todayStr = this.dateKey(today.getFullYear(), today.getMonth(), today.getDate());
