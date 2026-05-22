@@ -851,10 +851,10 @@ class TaskBoard {
       style: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' },
     }, [
       this.createStatCard('📋 总任务', totalTasks, '#3b82f6'),
-      this.createStatCard('📖 计划中', todoCount, '#3b82f6'),
-      this.createStatCard('🚴 进行中', doingCount, '#f59e0b'),
-      this.createStatCard('✅ 已完成', doneCount, '#10b981'),
-      this.createStatCard('⏳ 未完成', unfinishCount, '#ef4444'),
+      this.createStatCard('📖 ' + this.taskStore.getStatusText('todo'), todoCount, '#3b82f6'),
+      this.createStatCard('🚴 ' + this.taskStore.getStatusText('doing'), doingCount, '#f59e0b'),
+      this.createStatCard('✅ ' + this.taskStore.getStatusText('done'), doneCount, '#10b981'),
+      this.createStatCard('⏳ ' + this.taskStore.getStatusText('unfinish'), unfinishCount, '#ef4444'),
       this.createStatCard('🗄️ 已归档', totalArchived, '#64748b'),
     ]);
     container.appendChild(cardGrid);
@@ -872,10 +872,10 @@ class TaskBoard {
       createElement('div', {
         style: { display: 'flex', flexDirection: 'column', gap: '12px' },
       }, [
-        this.createProgressBar('📖 计划中', todoCount, totalTasks, 'var(--status-todo)'),
-        this.createProgressBar('🚴 进行中', doingCount, totalTasks, 'var(--status-doing)'),
-        this.createProgressBar('✅ 已完成', doneCount, totalTasks, 'var(--status-done)'),
-        this.createProgressBar('⏳ 未完成', unfinishCount, totalTasks, 'var(--status-unfinish)'),
+        this.createProgressBar('📖 ' + this.taskStore.getStatusText('todo'), todoCount, totalTasks, 'var(--status-todo)'),
+        this.createProgressBar('🚴 ' + this.taskStore.getStatusText('doing'), doingCount, totalTasks, 'var(--status-doing)'),
+        this.createProgressBar('✅ ' + this.taskStore.getStatusText('done'), doneCount, totalTasks, 'var(--status-done)'),
+        this.createProgressBar('⏳ ' + this.taskStore.getStatusText('unfinish'), unfinishCount, totalTasks, 'var(--status-unfinish)'),
       ]),
     ]);
     container.appendChild(progressSection);
@@ -924,8 +924,8 @@ class TaskBoard {
         }),
       ]),
       createElement('span', {
-        style: { width: '80px', textAlign: 'right', fontSize: '14px', fontWeight: '700', color },
-      }, `${count} (${Math.round(pct)}%)`),
+        style: { width: '40px', textAlign: 'right', fontSize: '14px', fontWeight: '700', color },
+      }, String(count)),
     ]);
   }
 
