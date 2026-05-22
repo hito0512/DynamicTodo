@@ -105,9 +105,10 @@
 
 ### 从思源文档生成任务卡片
 
-1. Agent 通过 `cli-anything-siyuan export md <doc-id>` 导出文档 Markdown
-2. 解析文档中的清单/笔记内容，按上方 JSON 格式生成 `tasks.json`
-3. 用户拿到 JSON 文件后，在 DynamicTodo 挂件中 **⚙️ → 导入数据** 即可
+1. 将 `cli-anything-siyuan.exe` 放在系统 PATH 路径下，确保 Agent 可以直接调用
+2. Agent 通过 `cli-anything-siyuan export md <doc-id>` 导出文档 Markdown
+3. Agent 按照本 README 的 JSON 格式解析文档内容，生成 `tasks.json`
+4. 用户拿到 JSON 文件后，在 DynamicTodo 挂件中 **⚙️ → 导入数据** 即可
 
 生成的 JSON 文件保存在桌面（如 `~/Desktop/tasks.json`），**严禁放入代码目录或提交到 git**。
 
