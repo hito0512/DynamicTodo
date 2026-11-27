@@ -12,17 +12,17 @@ function formatDateInput(timestamp) {
 }
 
 import { validateTaskData } from '../utils/security.js';
-import { STATUS_TEXT } from '../config/constants.js';
+import { defaultStatusTexts } from '../config/constants.js';
 import { t } from '../i18n.js';
 
 /**
  * 任务表单组件（创建/编辑任务）
  */
 class TaskForm {
-  constructor(callbacks = {}, initialStatusTexts = STATUS_TEXT) {
+  constructor(callbacks = {}, initialStatusTexts = null) {
     this.onSubmit = callbacks.onSubmit || (() => {});
     this.onUpdate = callbacks.onUpdate || (() => {});
-    this.statusTexts = { ...initialStatusTexts };
+    this.statusTexts = { ...(initialStatusTexts || defaultStatusTexts()) };
     this.element = null;
     this.currentTask = null;
     this.isOpen = false;

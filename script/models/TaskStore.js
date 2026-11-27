@@ -1,12 +1,14 @@
 import Task from './Task.js';
 import SiyuanApi from '../services/SiyuanApi.js';
-import { STATUS_TEXT, TASK_STATUS } from '../config/constants.js';
+import { defaultStatusTexts, TASK_STATUS } from '../config/constants.js';
+import { setLangPref as applyLangPref } from '../i18n.js';
 
 /**
  * 任务数据存储层 — 块属性存储方案
  *
  * 所有任务数据序列化为 JSON，存储在挂件块的 custom-tasks 属性中。
  * 状态文本映射存储在挂件块的 custom-status-texts 属性中。
+ * 界面语言偏好存储在挂件块的 custom-lang 属性中（auto / zh_CN / en_US）。
  */
 class TaskStore {
   static DATA_VERSION = '1.0.0';
@@ -18,7 +20,8 @@ class TaskStore {
     this.widgetBlockId = widgetBlockId;
     this.api = SiyuanApi.getInstance();
     this.tasks = [];
-    this.statusTexts = { ...STATUS_TEXT };
+    this.statusTexts = defaultStatusTexts();
+    this.langPref = 'auto';
   }
 
   /**
@@ -34,11 +37,17 @@ class TaskStore {
     try {
       const widgetAttrs = await this.api.getBlockAttrs(this.widgetBlockId);
 
+      // 界面语言偏好：必须在合并状态名称之前应用，默认状态名要按生效语言取
+      const savedLang = widgetAttrs['custom-lang'];
+      this.langPref = savedLang === 'zh_CN' || savedLang === 'en_US' ? savedLang : 'auto';
+      applyLangPref(this.langPref);
+      this.statusTexts = defaultStatusTexts();
+
       // 加载自定义状态名称
       if (widgetAttrs['custom-status-texts']) {
         try {
           const customStatusTexts = JSON.parse(widgetAttrs['custom-status-texts']);
-          this.statusTexts = { ...STATUS_TEXT, ...customStatusTexts };
+          this.statusTexts = { ...this.statusTexts, ...customStatusTexts };
         } catch (e) {
           console.error('解析自定义状态名称失败:', e);
         }
@@ -265,8 +274,22 @@ class TaskStore {
     return true;
   }
 
+  /**
+   * 保存界面语言偏好并立即生效，同时按新语言重算默认状态名称
+   * @param {'auto'|'zh_CN'|'en_US'} value
+   */
+  async setLangPref(value) {
+    this.langPref = value === 'zh_CN' || value === 'en_US' ? value : 'auto';
+    applyLangPref(this.langPref);
+    // 用户自定义过的状态名存在块属性里，这里只重算默认部分，随后由调用方重新 load
+    this.statusTexts = defaultStatusTexts();
+    await this.api.setBlockAttrs(this.widgetBlockId, {
+      'custom-lang': this.langPref,
+    });
+  }
+
   getStatusText(status) {
-    return this.statusTexts[status] || STATUS_TEXT[status] || status;
+    return this.statusTexts[status] || defaultStatusTexts()[status] || status;
   }
 
   getStatusTexts() {
@@ -323,7 +346,7 @@ class TaskStore {
       await this._save();
 
       if (data.statusTexts && typeof data.statusTexts === 'object') {
-        this.statusTexts = { ...STATUS_TEXT, ...data.statusTexts };
+        this.statusTexts = { ...defaultStatusTexts(), ...data.statusTexts };
         await this.api.setBlockAttrs(this.widgetBlockId, {
           'custom-status-texts': JSON.stringify(this.statusTexts),
         });

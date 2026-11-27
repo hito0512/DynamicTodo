@@ -12,13 +12,19 @@ export const TASK_STATUS = {
   UNFINISH: 'unfinish',
 };
 
-// 任务状态对应的显示文本
-export const STATUS_TEXT = {
-  [TASK_STATUS.TODO]: t('计划中'),
-  [TASK_STATUS.DOING]: t('进行中'),
-  [TASK_STATUS.DONE]: t('已完成'),
-  [TASK_STATUS.UNFINISH]: t('未完成'),
-};
+/**
+ * 任务状态对应的显示文本（当前语言）
+ * 每次调用现取，语言切换后重新调用即可得到新语言的默认名。
+ * @returns {Object}
+ */
+export function defaultStatusTexts() {
+  return {
+    [TASK_STATUS.TODO]: t('计划中'),
+    [TASK_STATUS.DOING]: t('进行中'),
+    [TASK_STATUS.DONE]: t('已完成'),
+    [TASK_STATUS.UNFINISH]: t('未完成'),
+  };
+}
 
 // 任务状态对应的列ID
 export const STATUS_COLUMN_ID = {

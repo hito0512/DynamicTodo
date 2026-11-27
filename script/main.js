@@ -50,7 +50,7 @@ async function initApp() {
     await taskStore.load();
 
     // 初始化看板组件
-    taskBoard = new TaskBoard(taskStore);
+    taskBoard = new TaskBoard(taskStore, { onLanguageChange: rebuildUI });
     await taskBoard.loadTasks();
 
     // 将看板挂载到容器
@@ -63,12 +63,7 @@ async function initApp() {
     appContainer.appendChild(taskBoard.getElement());
 
     // 初始化拖拽服务
-    dragDropService = new DragDropService(
-      taskBoard.getColumnElements(),
-      (taskId, newStatus, newOrder) => {
-        taskBoard.handleTaskDrop(taskId, newStatus, newOrder);
-      }
-    );
+    dragDropService = createDragDropService();
 
     window.__taskBoard = taskBoard;
     window.__taskStore = taskStore;
@@ -77,6 +72,61 @@ async function initApp() {
     console.error('初始化失败:', error);
     showError(t('初始化失败：{0}', error.message));
   }
+}
+
+/**
+ * 创建拖拽服务，绑定当前看板的列元素
+ * @returns {DragDropService}
+ */
+function createDragDropService() {
+  return new DragDropService(
+    taskBoard.getColumnElements(),
+    (taskId, newStatus, newOrder) => {
+      taskBoard.handleTaskDrop(taskId, newStatus, newOrder);
+    }
+  );
+}
+
+/**
+ * 语言切换后重建整个界面
+ * 界面文案在渲染时通过 t() 取值，不重建就还是旧语言。
+ * @param {string} view 重建后停留的视图
+ */
+async function rebuildUI(view) {
+  const container = document.querySelector('.app');
+  if (!container) return;
+
+  const keepView = view || 'board';
+  const keepYear = taskBoard ? taskBoard.boardYear : null;
+
+  // 拖拽服务持有旧的列元素，必须一并销毁
+  if (dragDropService) {
+    dragDropService.destroy();
+    dragDropService = null;
+  }
+  if (taskBoard) {
+    taskBoard.destroy();
+  }
+
+  // 重新读一次数据：默认状态名要按新语言重算
+  await taskStore.load();
+
+  taskBoard = new TaskBoard(taskStore, { onLanguageChange: rebuildUI });
+  taskBoard.boardYear = keepYear;
+  await taskBoard.loadTasks();
+
+  while (container.firstChild) container.removeChild(container.firstChild);
+  container.appendChild(taskBoard.getElement());
+
+  dragDropService = createDragDropService();
+
+  // 停回原来的视图
+  if (taskBoard.activeView !== keepView) {
+    taskBoard.activeView = keepView;
+    taskBoard.refreshView();
+  }
+
+  window.__taskBoard = taskBoard;
 }
 
 /**

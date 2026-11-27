@@ -10,8 +10,10 @@ import { t } from '../i18n.js';
  * 任务看板主组件（含标签切换：看板视图 / 日历）
  */
 class TaskBoard {
-  constructor(taskStore) {
+  constructor(taskStore, options = {}) {
     this.taskStore = taskStore;
+    // 语言变更后需要整个界面重建，由外部（main.js）负责销毁重挂
+    this.onLanguageChange = options.onLanguageChange || null;
     this.columns = new Map();
     this.taskForm = null;
     this.taskPreview = null;
@@ -1029,6 +1031,18 @@ class TaskBoard {
           ${t('所有任务数据存储在挂件块的属性中，导出为 JSON 可备份或迁移到其他挂件。')}
         </p>
 
+        <!-- 界面语言 -->
+        <div style="background:#f8fafc;border-radius:8px;padding:16px;margin-bottom:12px;">
+          <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:4px;">${t('🌐 界面语言')}</div>
+          <p style="font-size:13px;color:#64748b;margin:0 0 8px;">${t('只影响这个挂件，不改变思源本身的语言。')}</p>
+          <select id="settingsLang"
+            style="padding:7px 10px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;font-size:14px;color:#1e293b;cursor:pointer;">
+            <option value="auto"${this.taskStore.langPref === 'auto' ? ' selected' : ''}>${t('跟随思源')}</option>
+            <option value="zh_CN"${this.taskStore.langPref === 'zh_CN' ? ' selected' : ''}>中文</option>
+            <option value="en_US"${this.taskStore.langPref === 'en_US' ? ' selected' : ''}>English</option>
+          </select>
+        </div>
+
         <!-- 导出数据 -->
         <div style="background:#f8fafc;border-radius:8px;padding:16px;margin-bottom:12px;">
           <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:4px;">${t('📤 导出数据')}</div>
@@ -1046,6 +1060,11 @@ class TaskBoard {
         </div>
       </div>
     `;
+
+    // 界面语言
+    panel.querySelector('#settingsLang').onchange = (e) => {
+      this.handleLanguageChange(e.target.value);
+    };
 
     // 导出
     panel.querySelector('#settingsExportBtn').onclick = () => {
@@ -1085,6 +1104,18 @@ class TaskBoard {
       };
       input.click();
     };
+  }
+
+  /**
+   * 切换界面语言：保存偏好并交给外部重建界面
+   * @param {'auto'|'zh_CN'|'en_US'} value
+   */
+  async handleLanguageChange(value) {
+    if (value === this.taskStore.langPref) return;
+    await this.taskStore.setLangPref(value);
+    if (this.onLanguageChange) {
+      await this.onLanguageChange(this.activeView);
+    }
   }
 
   destroy() {

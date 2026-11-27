@@ -1,7 +1,8 @@
 /**
  * 界面文案（中/英）
  *
- * 默认中文；当思源界面语言不是中文时自动使用英文，界面内不提供语言切换。
+ * 语言偏好三档：auto（跟随思源界面语言，默认）/ zh_CN / en_US，
+ * 在挂件的设置面板里切换，存于挂件块的 custom-lang 属性，只影响本挂件。
  * 用法：t('看板视图')、t('{0} 年', 2026)
  * 词表以中文原文为键，新增文案时同步补充下方 EN 表。
  */
@@ -47,6 +48,10 @@ const EN = {
   '{0} 个任务': '{0} tasks',
 
   // 设置
+  '🌐 界面语言': '🌐 Language',
+  '只影响这个挂件，不改变思源本身的语言。':
+    "Applies to this widget only — SiYuan's own language is untouched.",
+  '跟随思源': 'Follow SiYuan',
   '所有任务数据存储在挂件块的属性中，导出为 JSON 可备份或迁移到其他挂件。':
     'All task data is stored in the widget block attributes. Export it as JSON to back up or migrate to another widget.',
   '📤 导出数据': '📤 Export',
@@ -142,15 +147,41 @@ function detectLang() {
 }
 
 const DETECTED = detectLang();
+const DETECTED_ZH = /^zh/i.test(DETECTED);
 
-/** 是否为中文界面 */
-export const isZh = /^zh/i.test(DETECTED);
+// 语言偏好：auto 跟随思源 / zh_CN 强制中文 / en_US 强制英文
+let langPref = 'auto';
+// 当前生效语言
+let activeLang = DETECTED_ZH ? 'zh_CN' : 'en_US';
 
-/** 当前语言代码 */
-export const lang = isZh ? 'zh_CN' : 'en_US';
+function syncDocumentLang() {
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = activeLang === 'zh_CN' ? 'zh-CN' : 'en';
+  }
+}
 
-if (typeof document !== 'undefined') {
-  document.documentElement.lang = isZh ? 'zh-CN' : 'en';
+syncDocumentLang();
+
+/**
+ * 设置语言偏好，立即生效。重绘界面由调用方负责。
+ * @param {'auto'|'zh_CN'|'en_US'} value
+ * @returns {'zh_CN'|'en_US'} 生效的语言
+ */
+export function setLangPref(value) {
+  langPref = value === 'zh_CN' || value === 'en_US' ? value : 'auto';
+  activeLang = langPref === 'auto' ? (DETECTED_ZH ? 'zh_CN' : 'en_US') : langPref;
+  syncDocumentLang();
+  return activeLang;
+}
+
+/** 当前语言偏好 */
+export function getLangPref() {
+  return langPref;
+}
+
+/** 当前生效语言 */
+export function getActiveLang() {
+  return activeLang;
 }
 
 /**
@@ -161,7 +192,7 @@ if (typeof document !== 'undefined') {
  */
 export function t(text, ...args) {
   let out = text;
-  if (!isZh) out = EN[text] !== undefined ? EN[text] : text;
+  if (activeLang !== 'zh_CN') out = EN[text] !== undefined ? EN[text] : text;
   args.forEach((value, index) => {
     out = out.replaceAll(`{${index}}`, String(value));
   });
@@ -175,7 +206,9 @@ export function t(text, ...args) {
  * @returns {string}
  */
 export function monthTitle(year, month) {
-  return isZh ? `${year} 年 ${month} 月` : `${MONTHS_EN[month - 1]} ${year}`;
+  return activeLang === 'zh_CN'
+    ? `${year} 年 ${month} 月`
+    : `${MONTHS_EN[month - 1]} ${year}`;
 }
 
 /**
@@ -183,5 +216,7 @@ export function monthTitle(year, month) {
  * @returns {string[]}
  */
 export function weekdays() {
-  return isZh ? ['一', '二', '三', '四', '五', '六', '日'] : WEEKDAYS_EN;
+  return activeLang === 'zh_CN'
+    ? ['一', '二', '三', '四', '五', '六', '日']
+    : WEEKDAYS_EN;
 }
