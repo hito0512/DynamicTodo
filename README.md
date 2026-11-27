@@ -16,7 +16,7 @@
 - **按年筛选**：看板、统计、归档面板均支持
 - **归档管理**：完成的任务可归档，支持「恢复原样」与「新建（今天）」
 - **统计面板**：各状态任务分布与完成进度
-- **中英双语**：跟随思源界面语言自动切换
+- **中英双语**：默认跟随思源界面语言，也可在设置面板里单独指定中文 / English
 
 ## 预览
 
@@ -43,7 +43,7 @@
 
 ## English
 
-The UI follows SiYuan's interface language: Chinese when SiYuan runs in Chinese, English otherwise. There is no language switch inside the widget.
+The UI follows SiYuan's interface language by default. You can also force Chinese or English for this widget only, in the Settings tab.
 
 - Kanban board and calendar view, drag tasks between status columns
 - Archive, statistics and tag panels
@@ -125,14 +125,115 @@ Install from the SiYuan marketplace (search `DynamicTodo`), or unzip `package.zi
 
 ## 从思源文档生成任务卡片
 
-配合 `cli-anything-siyuan` 可以把文档内容整理成任务：
+这一步不是挂件自己做的。挂件只负责「导入 JSON、显示看板」，读笔记、整理成任务是
+[CLI-Anything](https://github.com/HKUDS/CLI-Anything) 里思源 CLI（`cli-anything-siyuan`）的活：
+CLI 把文档导出来，Agent 按下面的格式写成 `tasks.json`，再导入挂件。
 
-1. 将 `cli-anything-siyuan.exe` 放到系统 PATH 下，供命令行或 Agent 调用
-2. `cli-anything-siyuan export md <doc-id>` 导出文档 Markdown
-3. 按上文格式生成 `tasks.json`
-4. 在挂件里 **⚙️ → 导入数据** 选择该文件
+### 安装 cli-anything-siyuan
+
+前置：思源 3.x 正在运行，Python 3.10+。
+
+先把仓库拉下来：
+
+```bash
+git clone https://github.com/HKUDS/CLI-Anything.git
+cd CLI-Anything/siyuan/agent-harness
+```
+
+然后二选一装。**推荐方式一**，因为它顺手把后面「命令找不到」的问题也解决了。
+
+**方式一：装进虚拟环境（推荐）**
+
+```bash
+python -m venv .venv
+
+# Windows 激活
+.venv\Scripts\activate
+# macOS / Linux 激活
+source .venv/bin/activate
+
+pip install -e .                  # 想用交互式 REPL 就装 pip install -e ".[repl]"
+```
+
+激活状态下 `.venv` 自己的 Scripts 目录会自动进 PATH，`cli-anything-siyuan` 直接能用。
+代价是**每次开新终端都要先激活一次**（重进 `agent-harness` 目录执行上面那句 activate）。
+
+**方式二：装进系统 Python**
+
+```bash
+pip install -e .                  # 想用交互式 REPL 就装 pip install -e ".[repl]"
+```
+
+装完会多一个 `cli-anything-siyuan` 命令。如果运行时提示 `command not found`，
+Windows 下提示「不是内部或外部命令」，说明 Python 的 Scripts 目录不在系统 PATH 里，
+照下面把路径加进去。
+
+先查出脚本目录：
+
+```bash
+python -c "import sysconfig; print(sysconfig.get_path('scripts'))"
+```
+
+- **Windows**：把这条命令输出的路径（形如 `C:\Users\你的用户名\AppData\Local\Programs\Python\Python312\Scripts`）
+  加进「系统属性 → 高级 → 环境变量 → 用户变量 Path」。如果装的时候用了 `pip install --user`，
+  目录在 `%APPDATA%\Python\PythonXY\Scripts`。
+- **macOS / Linux**：在 `~/.zshrc`（zsh）或 `~/.bashrc`（bash）末尾加一行，
+  路径用上面命令的输出；用 `--user` 装的通常在 `~/.local/bin`：
+
+  ```bash
+  export PATH="$HOME/.local/bin:$PATH"
+  ```
+
+  `source ~/.zshrc`（或 `~/.bashrc`）让改动立即生效。
+
+改完 PATH 要**重开终端**才算生效。验证：
+
+```bash
+cli-anything-siyuan --help
+```
+
+**临时办法：不改 PATH，直接用绝对路径**
+
+把本文后面所有 `cli-anything-siyuan` 换成脚本目录下的完整文件名即可：
+
+```bash
+# Windows
+"C:\...\Python312\Scripts\cli-anything-siyuan.exe" export md <doc-id>
+# macOS / Linux
+/path/to/scripts/cli-anything-siyuan export md <doc-id>
+```
+
+首次使用先写配置，放到 `~/.siyuan-cli.json`：
+
+```json
+{
+  "host": "127.0.0.1",
+  "port": 6806,
+  "token": "你的 API token"
+}
+```
+
+Token 在 **思源 → 设置 → 关于 → API Token**。也可以改用环境变量 `SIYUAN_HOST` / `SIYUAN_PORT` / `SIYUAN_TOKEN`。
+
+### 让 Agent 代办
+
+不想自己拼 JSON，就把它的 skill 装上，之后一句话让它干活：
+
+```bash
+npx skills add HKUDS/CLI-Anything --skill cli-anything-siyuan -g -y
+```
 
 指令示例：`sy 20211103171034-f14h747 制作卡片`、`思源 制作卡片 <doc-id>`、`sy 导出为卡片 <doc-id>`
+（`sy` 只是 `cli-anything-siyuan` 的简写别名，按自己习惯设。）
+
+### 手动流程
+
+1. `cli-anything-siyuan export md <doc-id>` 导出文档 Markdown
+2. 按上文格式生成 `tasks.json`
+3. 在挂件里 **⚙️ → 导入数据** 选择该文件
+
+CLI 的完整用法（notebook / doc / block / search / sql 等命令）见它的
+[README](https://github.com/HKUDS/CLI-Anything/blob/main/siyuan/agent-harness/cli_anything/siyuan/README.md)。
 
 ## 更新记录
 
