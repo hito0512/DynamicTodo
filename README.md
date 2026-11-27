@@ -4,6 +4,14 @@
 
 > **抱歉**：v0.3.0 的数据存储方式存在设计缺陷，可能导致数据卡顿。v0.4.0 已修复此问题，回退到更稳定的存储方案，并自动兼容旧版本数据。如果遇到任务数据不显示，请更新到最新版本。
 
+## English
+
+The UI follows SiYuan's interface language: Chinese when SiYuan runs in Chinese, English otherwise. There is no language switch inside the widget.
+
+- Kanban board and calendar view, drag tasks between status columns
+- Archive, statistics and tag panels
+- Import / export all tasks as JSON from the ⚙️ Settings tab
+
 ## 功能
 
 - **双视图切换**：看板视图 / 日历视图，标签切换

@@ -2,6 +2,8 @@
  * 全局常量配置
  */
 
+import { t } from '../i18n.js';
+
 // 任务状态
 export const TASK_STATUS = {
   TODO: 'todo',
@@ -12,10 +14,10 @@ export const TASK_STATUS = {
 
 // 任务状态对应的显示文本
 export const STATUS_TEXT = {
-  [TASK_STATUS.TODO]: '计划中',
-  [TASK_STATUS.DOING]: '进行中',
-  [TASK_STATUS.DONE]: '已完成',
-  [TASK_STATUS.UNFINISH]: '未完成',
+  [TASK_STATUS.TODO]: t('计划中'),
+  [TASK_STATUS.DOING]: t('进行中'),
+  [TASK_STATUS.DONE]: t('已完成'),
+  [TASK_STATUS.UNFINISH]: t('未完成'),
 };
 
 // 任务状态对应的列ID

@@ -6,6 +6,7 @@ import TaskBoard from './components/TaskBoard.js';
 import DragDropService from './services/DragDropService.js';
 import SiyuanApi from './services/SiyuanApi.js';
 import { getWidgetBlockInfo } from './util.js';
+import { t } from './i18n.js';
 
 // 全局变量
 let taskStore = null;
@@ -32,7 +33,7 @@ async function initApp() {
 
     if (!blockId) {
       console.error('获取挂件块ID失败');
-      showError('初始化失败：无法获取挂件块信息');
+      showError(t('初始化失败：无法获取挂件块信息'));
       return;
     }
 
@@ -56,7 +57,7 @@ async function initApp() {
     const appContainer = document.querySelector('.app');
     if (!appContainer) {
       console.error('未找到 .app 容器元素');
-      showError('初始化失败：未找到容器元素');
+      showError(t('初始化失败：未找到容器元素'));
       return;
     }
     appContainer.appendChild(taskBoard.getElement());
@@ -74,7 +75,7 @@ async function initApp() {
     console.log('DynamicTodo 初始化完成');
   } catch (error) {
     console.error('初始化失败:', error);
-    showError('初始化失败：' + error.message);
+    showError(t('初始化失败：{0}', error.message));
   }
 }
 

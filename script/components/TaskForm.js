@@ -13,6 +13,7 @@ function formatDateInput(timestamp) {
 
 import { validateTaskData } from '../utils/security.js';
 import { STATUS_TEXT } from '../config/constants.js';
+import { t } from '../i18n.js';
 
 /**
  * 任务表单组件（创建/编辑任务）
@@ -30,7 +31,7 @@ class TaskForm {
 
   render() {
     const header = createElement('div', { className: 'form-header' }, [
-      createElement('h3', { className: 'form-title' }, '创建任务'),
+      createElement('h3', { className: 'form-title' }, t('创建任务')),
       createElement('button', {
         className: 'form-close',
         onclick: () => this.close(),
@@ -40,17 +41,17 @@ class TaskForm {
     const body = createElement('div', { className: 'form-body' }, [
       // 标题
       createElement('div', { className: 'form-group' }, [
-        createElement('label', { className: 'form-label' }, '任务名称'),
+        createElement('label', { className: 'form-label' }, t('任务名称')),
         createElement('input', {
           type: 'text',
-          placeholder: '输入任务名称...',
+          placeholder: t('输入任务名称...'),
           id: 'taskname',
           className: 'form-input',
         }),
       ]),
       // 状态
       createElement('div', { className: 'form-group' }, [
-        createElement('label', { className: 'form-label' }, '任务状态'),
+        createElement('label', { className: 'form-label' }, t('任务状态')),
         createElement('select', { className: 'form-select', name: 'taskType', id: 'taskType' },
           Object.entries(this.statusTexts).map(([value, text]) =>
             createElement('option', { value }, text)
@@ -60,7 +61,7 @@ class TaskForm {
       // 日期
       createElement('div', { className: 'form-row' }, [
         createElement('div', { className: 'form-group' }, [
-          createElement('label', { className: 'form-label' }, '开始日期'),
+          createElement('label', { className: 'form-label' }, t('开始日期')),
           createElement('input', {
             type: 'date',
             id: 'taskstart',
@@ -68,7 +69,7 @@ class TaskForm {
           }),
         ]),
         createElement('div', { className: 'form-group' }, [
-          createElement('label', { className: 'form-label' }, '结束日期'),
+          createElement('label', { className: 'form-label' }, t('结束日期')),
           createElement('input', {
             type: 'date',
             id: 'taskend',
@@ -78,20 +79,20 @@ class TaskForm {
       ]),
       // 描述
       createElement('div', { className: 'form-group' }, [
-        createElement('label', { className: 'form-label' }, '任务描述'),
+        createElement('label', { className: 'form-label' }, t('任务描述')),
         createElement('textarea', {
           id: 'taskcontent',
           className: 'form-textarea',
           rows: 4,
-          placeholder: '输入任务描述（支持 Markdown）...',
+          placeholder: t('输入任务描述（支持 Markdown）...'),
         }),
       ]),
       // 标签
       createElement('div', { className: 'form-group' }, [
-        createElement('label', { className: 'form-label' }, '标签（逗号分隔）'),
+        createElement('label', { className: 'form-label' }, t('标签（逗号分隔）')),
         createElement('input', {
           type: 'text',
-          placeholder: '例如: 工作, 个人, 学习',
+          placeholder: t('例如: 工作, 个人, 学习'),
           id: 'tasktags',
           className: 'form-input',
         }),
@@ -102,16 +103,16 @@ class TaskForm {
       createElement('button', {
         className: 'form-btn form-btn--cancel',
         onclick: () => this.close(),
-      }, '取消'),
+      }, t('取消')),
       createElement('button', {
         className: 'form-btn form-btn--submit',
         id: 'submit',
-      }, '创建'),
+      }, t('创建')),
       createElement('button', {
         className: 'form-btn form-btn--update',
         id: 'update',
         style: { display: 'none' },
-      }, '更新'),
+      }, t('更新')),
     ]);
 
     this.element = createElement('div', {
@@ -180,7 +181,7 @@ class TaskForm {
 
     this.element.querySelector('#submit').style.display = '';
     this.element.querySelector('#update').style.display = 'none';
-    this.element.querySelector('.form-title').textContent = '创建任务';
+    this.element.querySelector('.form-title').textContent = t('创建任务');
 
     this.element.style.pointerEvents = 'auto';
     this.element.style.left = `${position.x}px`;
@@ -214,7 +215,7 @@ class TaskForm {
     
     this.element.querySelector('#submit').style.display = 'none';
     this.element.querySelector('#update').style.display = '';
-    this.element.querySelector('.form-title').textContent = '编辑任务';
+    this.element.querySelector('.form-title').textContent = t('编辑任务');
 
     this.element.style.pointerEvents = 'auto';
     this.element.style.left = `${position.x}px`;
@@ -263,7 +264,7 @@ class TaskForm {
             document.body.removeChild(overlay);
             this.element.querySelector('#taskname').focus();
           },
-        }, '确定'),
+        }, t('确定')),
       ]),
     ]);
 
@@ -292,7 +293,7 @@ class TaskForm {
     };
 
     if (!validateTaskData(taskData)) {
-      this.showAlert('任务标题不能为空');
+      this.showAlert(t('任务标题不能为空'));
       return;
     }
 
@@ -317,7 +318,7 @@ class TaskForm {
     };
 
     if (!validateTaskData(updateData)) {
-      this.showAlert('任务标题不能为空');
+      this.showAlert(t('任务标题不能为空'));
       return;
     }
 

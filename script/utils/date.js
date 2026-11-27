@@ -2,6 +2,8 @@
  * 日期时间工具函数
  */
 
+import { t } from '../i18n.js';
+
 /**
  * 格式化时间戳为日期字符串
  * @param {number} timestamp 时间戳（毫秒）
@@ -50,18 +52,18 @@ export function formatRelativeTime(timestamp) {
   const year = 365 * day;
 
   if (diff < minute) {
-    return '刚刚';
+    return t('刚刚');
   } else if (diff < hour) {
-    return `${Math.floor(diff / minute)}分钟前`;
+    return t('{0}分钟前', Math.floor(diff / minute));
   } else if (diff < day) {
-    return `${Math.floor(diff / hour)}小时前`;
+    return t('{0}小时前', Math.floor(diff / hour));
   } else if (diff < week) {
-    return `${Math.floor(diff / day)}天前`;
+    return t('{0}天前', Math.floor(diff / day));
   } else if (diff < month) {
-    return `${Math.floor(diff / week)}周前`;
+    return t('{0}周前', Math.floor(diff / week));
   } else if (diff < year) {
-    return `${Math.floor(diff / month)}个月前`;
+    return t('{0}个月前', Math.floor(diff / month));
   } else {
-    return `${Math.floor(diff / year)}年前`;
+    return t('{0}年前', Math.floor(diff / year));
   }
 }

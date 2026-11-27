@@ -2,6 +2,7 @@ import { createElement, debounce } from '../utils/dom.js';
 import { formatDate, formatRelativeTime } from '../utils/date.js';
 import { sanitizeHtml } from '../utils/security.js';
 import { UI_CONSTANTS } from '../config/constants.js';
+import { t } from '../i18n.js';
 
 /**
  * 任务预览浮层组件
@@ -40,7 +41,7 @@ class TaskPreview {
         createElement('button', {
           className: 'preview-close',
           id: 'previewClose',
-          title: '关闭',
+          title: t('关闭'),
           onclick: () => this.hidePreview(),
         }, '×'),
         // 任务标题

@@ -1,4 +1,5 @@
 import { SECURITY } from '../config/constants.js';
+import { t } from '../i18n.js';
 
 /**
  * 安全工具函数
@@ -63,12 +64,12 @@ export function sanitizeHtml(html) {
           const url = new URL(src);
           if (!SECURITY.ALLOWED_PROTOCOLS.includes(url.protocol)) {
             element.removeAttribute('src');
-            element.setAttribute('alt', '不安全的图片链接');
+            element.setAttribute('alt', t('不安全的图片链接'));
           }
         } catch {
           // 无效URL，移除src
           element.removeAttribute('src');
-          element.setAttribute('alt', '无效的图片链接');
+          element.setAttribute('alt', t('无效的图片链接'));
         }
       }
     }

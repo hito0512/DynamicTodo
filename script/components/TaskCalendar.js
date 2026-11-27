@@ -1,4 +1,5 @@
 import { createElement } from '../utils/dom.js';
+import { t, monthTitle, weekdays } from '../i18n.js';
 
 /**
  * 日历视图组件
@@ -35,7 +36,7 @@ class TaskCalendar {
         onclick: () => this.prevMonth(),
       }, '◀'),
       createElement('span', { className: 'calendar__title' },
-        `${year} 年 ${month} 月`),
+        monthTitle(year, month)),
       createElement('button', {
         className: 'calendar__nav-btn',
         onclick: () => this.nextMonth(),
@@ -43,14 +44,14 @@ class TaskCalendar {
       createElement('button', {
         className: 'calendar__today-btn',
         onclick: () => this.goToday(),
-      }, '📅 今天'),
+      }, t('📅 今天')),
     ]);
   }
 
   renderWeekdays() {
-    const weekdays = ['一', '二', '三', '四', '五', '六', '日'];
+    const days = weekdays();
     return createElement('div', { className: 'calendar__weekdays' },
-      weekdays.map(d => createElement('span', { className: 'calendar__weekday' }, d))
+      days.map(d => createElement('span', { className: 'calendar__weekday' }, d))
     );
   }
 
@@ -136,7 +137,7 @@ class TaskCalendar {
 
       if (overflow > 0) {
         taskItems.push(
-          createElement('div', { className: 'calendar__task-more' }, `+${overflow} 更多`)
+          createElement('div', { className: 'calendar__task-more' }, t('+{0} 更多', overflow))
         );
       }
 

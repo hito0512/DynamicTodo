@@ -1,5 +1,6 @@
 import TaskCard from './TaskCard.js';
 import { createElement } from '../utils/dom.js';
+import { t } from '../i18n.js';
 
 /**
  * 状态图标映射
@@ -55,7 +56,7 @@ class TaskColumn {
     // 创建添加按钮
     const addBtn = createElement('button', {
       className: 'project-column-heading__options',
-      title: '添加任务',
+      title: t('添加任务'),
     }, '+');
 
     // 绑定添加任务事件
@@ -73,7 +74,7 @@ class TaskColumn {
         flex: 1,
         marginRight: '8px'
       },
-      title: '双击编辑标题'
+      title: t('双击编辑标题')
     }, `${icon} ${statusText}`);
 
     // 双击编辑标题

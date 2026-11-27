@@ -1,6 +1,7 @@
 import { formatDate } from '../utils/date.js';
 import { createElement } from '../utils/dom.js';
 import { sanitizeHtml } from '../utils/security.js';
+import { t } from '../i18n.js';
 
 /**
  * 任务卡片组件
@@ -33,15 +34,15 @@ class TaskCard {
         createElement('div', { className: 'task__actions' }, [
           createElement('button', {
             className: 'task__action-btn task__action-btn--edit',
-            title: '编辑任务',
+            title: t('编辑任务'),
           }, '✏️'),
           this.task.status === 'done' || this.task.status === 'unfinish' ? createElement('button', {
             className: 'task__action-btn task__action-btn--archive',
-            title: '归档任务',
+            title: t('归档任务'),
           }, '📦') : null,
           createElement('button', {
             className: 'task__action-btn task__action-btn--delete',
-            title: '删除任务',
+            title: t('删除任务'),
           }, '🗑️'),
         ]),
       ]),
@@ -55,7 +56,7 @@ class TaskCard {
             background: 'var(--status-todo)', color: '#ffffff', cursor: 'pointer',
             transition: 'opacity 0.15s ease',
           },
-          title: `按「${tag}」筛选`,
+          title: t('按「{0}」筛选', tag),
           onclick: (e) => { e.stopPropagation(); this.onTagClick(tag); },
           onmouseenter: (e) => { e.target.style.opacity = '0.7'; },
           onmouseleave: (e) => { e.target.style.opacity = '1'; },
@@ -218,7 +219,7 @@ class TaskCard {
             fontSize: '1.1rem',
             color: 'var(--text-primary)',
           },
-        }, '确定要删除这个任务吗？'),
+        }, t('确定要删除这个任务吗？')),
         createElement('div', {
           style: {
             display: 'flex',
@@ -240,7 +241,7 @@ class TaskCard {
             onclick: () => {
               document.body.removeChild(confirmModal);
             },
-          }, '取消'),
+          }, t('取消')),
           createElement('button', {
             className: 'confirm-btn',
             style: {
@@ -258,7 +259,7 @@ class TaskCard {
               document.body.removeChild(confirmModal);
               this.onDelete(this.task.id);
             },
-          }, '删除'),
+          }, t('删除')),
         ]),
       ]),
     ]);

@@ -4,6 +4,7 @@ import TaskPreview from './TaskPreview.js';
 import TaskCalendar from './TaskCalendar.js';
 import { createElement } from '../utils/dom.js';
 import { TASK_STATUS } from '../config/constants.js';
+import { t } from '../i18n.js';
 
 /**
  * 任务看板主组件（含标签切换：看板视图 / 日历）
@@ -65,29 +66,29 @@ class TaskBoard {
         createElement('button', {
           className: 'view-tab' + (this.activeView === 'board' ? ' view-tab--active' : ''),
           onclick: () => this.switchView('board'),
-        }, '📋 看板视图'),
+        }, t('📋 看板视图')),
         createElement('button', {
           className: 'view-tab' + (this.activeView === 'calendar' ? ' view-tab--active' : ''),
           onclick: () => this.switchView('calendar'),
-        }, '📅 日历'),
+        }, t('📅 日历')),
         createElement('button', {
           className: 'view-tab' + (this.activeView === 'archive' ? ' view-tab--active' : ''),
           onclick: () => this.switchView('archive'),
-        }, '🗄️ 归档'),
+        }, t('🗄️ 归档')),
         createElement('button', {
           className: 'view-tab' + (this.activeView === 'stats' ? ' view-tab--active' : ''),
           onclick: () => this.switchView('stats'),
-        }, '📊 统计'),
+        }, t('📊 统计')),
         createElement('button', {
           className: 'view-tab' + (this.activeView === 'tags' ? ' view-tab--active' : ''),
           onclick: () => this.switchView('tags'),
-        }, '🏷️ 标签'),
+        }, t('🏷️ 标签')),
         // 设置面板标签（最右侧）
         createElement('button', {
           className: 'view-tab' + (this.activeView === 'settings' ? ' view-tab--active' : ''),
           style: { marginLeft: 'auto' },
           onclick: () => this.switchView('settings'),
-        }, '⚙️ 设置'),
+        }, t('⚙️ 设置')),
       ]),
       // 看板内容区
       createElement('div', {
@@ -189,7 +190,7 @@ class TaskBoard {
     }
 
     container.appendChild(
-      createElement('span', { style: { fontSize: '14px', color: '#64748b' } }, '📅 按年筛选')
+      createElement('span', { style: { fontSize: '14px', color: '#64748b' } }, t('📅 按年筛选'))
     );
     container.appendChild(
       createElement('select', {
@@ -202,23 +203,23 @@ class TaskBoard {
           this.renderAllTasks();
         },
       }, [
-        createElement('option', { value: '', selected: this.boardYear === null }, '全部'),
+        createElement('option', { value: '', selected: this.boardYear === null }, t('全部')),
         ...years.map(y =>
           createElement('option', {
             value: y,
             selected: y === this.boardYear,
-          }, `${y} 年`)
+          }, t('{0} 年', y))
         ),
       ])
     );
 
     // 标签筛选
     container.appendChild(
-      createElement('span', { style: { fontSize: '14px', color: '#64748b', marginLeft: '12px' } }, '🏷️ 标签')
+      createElement('span', { style: { fontSize: '14px', color: '#64748b', marginLeft: '12px' } }, t('🏷️ 标签'))
     );
     const tagInput = createElement('input', {
       type: 'text',
-      placeholder: '输入标签筛选...',
+      placeholder: t('输入标签筛选...'),
       style: {
         padding: '4px 10px', border: '1px solid #e2e8f0', borderRadius: '6px',
         fontSize: '14px', background: 'white', outline: 'none', width: '130px',
@@ -240,7 +241,7 @@ class TaskBoard {
       commonTags.forEach(({ tag, count }) => {
         const chip = createElement('span', {
           draggable: true,
-          title: `拖拽到任务卡片上即可添加标签「${tag}」`,
+          title: t('拖拽到任务卡片上即可添加标签「{0}」', tag),
           style: {
             display: 'inline-flex', alignItems: 'center', gap: '3px',
             padding: '2px 8px', borderRadius: '4px', fontSize: '12px',
@@ -354,7 +355,7 @@ class TaskBoard {
       this.taskForm.openEdit(task, position);
     } catch (err) {
       console.error('编辑任务异常:', err);
-      alert('编辑失败：' + err.message);
+      alert(t('编辑失败：{0}', err.message));
     }
   }
 
@@ -483,7 +484,7 @@ class TaskBoard {
             style: { display: 'flex', gap: '8px' },
           }, [
             createElement('button', {
-              title: '任务回到看板，保持原有状态和日期',
+              title: t('任务回到看板，保持原有状态和日期'),
               style: {
                 flex: '1', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 gap: '4px', padding: '8px 12px', border: '1.5px solid #e2e8f0',
@@ -497,9 +498,9 @@ class TaskBoard {
               },
               onmouseenter: (e) => { e.currentTarget.style.borderColor = 'var(--status-done)'; e.currentTarget.style.background = '#f0fdf4'; },
               onmouseleave: (e) => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#ffffff'; },
-            }, '🔄 恢复原样'),
+            }, t('🔄 恢复原样')),
             createElement('button', {
-              title: '复制内容创建新任务，日期设为今天',
+              title: t('复制内容创建新任务，日期设为今天'),
               style: {
                 flex: '1', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 gap: '4px', padding: '8px 12px', border: 'none',
@@ -513,7 +514,7 @@ class TaskBoard {
               },
               onmouseenter: (e) => { e.currentTarget.style.background = '#2563eb'; },
               onmouseleave: (e) => { e.currentTarget.style.background = 'var(--status-todo)'; },
-            }, '➕ 新建（今天）'),
+            }, t('➕ 新建（今天）')),
           ]),  // close buttons div
         ]),  // close content div
         // 底部取消
@@ -532,7 +533,7 @@ class TaskBoard {
             onclick: () => document.body.removeChild(overlay),
             onmouseenter: (e) => { e.target.style.color = '#475569'; },
             onmouseleave: (e) => { e.target.style.color = '#94a3b8'; },
-          }, '取消'),
+          }, t('取消')),
         ]),
       ]),  // close modal div
     ]);  // close overlay array
@@ -618,7 +619,7 @@ class TaskBoard {
         }, [
           createElement('h3', {
             style: { margin: '0', fontSize: '17px', fontWeight: '700', color: '#e53e3e' },
-          }, `⏳ ${this.taskStore.getStatusText('unfinish')}归档`),
+          }, t('⏳ {0}归档', this.taskStore.getStatusText('unfinish'))),
           createElement('span', {
             style: { fontSize: '13px', color: '#94a3b8' },
           }, `(${unfinishFiltered.length})`),
@@ -633,12 +634,12 @@ class TaskBoard {
             this.renderArchivePanel();
           },
         }, [
-          createElement('option', { value: '', selected: this.selectedUnfinishYear === null }, '全部'),
+          createElement('option', { value: '', selected: this.selectedUnfinishYear === null }, t('全部')),
           ...unfinishYears.map(y =>
             createElement('option', {
               value: y,
               selected: y === this.selectedUnfinishYear,
-            }, `${y} 年`)
+            }, t('{0} 年', y))
           ),
         ]) : null,
       ]),
@@ -651,8 +652,8 @@ class TaskBoard {
           : createElement('div', {
               style: { textAlign: 'center', color: '#94a3b8', padding: '0 20px 16px', fontSize: '14px' },
             }, this.selectedUnfinishYear
-              ? `${this.selectedUnfinishYear} 年暂无${this.taskStore.getStatusText('unfinish')}归档`
-              : `暂无${this.taskStore.getStatusText('unfinish')}归档`);
+              ? t('{0} 年暂无{1}归档', this.selectedUnfinishYear, this.taskStore.getStatusText('unfinish'))
+              : t('暂无{0}归档', this.taskStore.getStatusText('unfinish')));
       })(),
     ]);
     panel.appendChild(unfinishSection);
@@ -682,7 +683,7 @@ class TaskBoard {
       }, [
         createElement('h3', {
           style: { margin: '0', fontSize: '17px', fontWeight: '700', color: '#1e293b' },
-        }, `✅ ${this.taskStore.getStatusText('done')}归档`),
+        }, t('✅ {0}归档', this.taskStore.getStatusText('done'))),
         createElement('span', {
           style: { fontSize: '13px', color: '#94a3b8' },
         }, `(${doneFiltered.length})`),
@@ -697,12 +698,12 @@ class TaskBoard {
           this.renderArchivePanel();
         },
       }, [
-        createElement('option', { value: '', selected: this.selectedArchiveYear === null }, '全部'),
+        createElement('option', { value: '', selected: this.selectedArchiveYear === null }, t('全部')),
         ...years.map(y =>
           createElement('option', {
             value: y,
             selected: y === this.selectedArchiveYear,
-          }, `${y} 年`)
+          }, t('{0} 年', y))
         ),
       ]) : null,
     ]);
@@ -717,8 +718,8 @@ class TaskBoard {
       panel.appendChild(createElement('div', {
         style: { textAlign: 'center', color: '#94a3b8', padding: '0 20px 16px', fontSize: '14px' },
       }, this.selectedArchiveYear
-        ? `${this.selectedArchiveYear} 年暂无${this.taskStore.getStatusText('done')}归档`
-        : `暂无${this.taskStore.getStatusText('done')}归档`));
+        ? t('{0} 年暂无{1}归档', this.selectedArchiveYear, this.taskStore.getStatusText('done'))
+        : t('暂无{0}归档', this.taskStore.getStatusText('done'))));
     }
 
     if (archivedTasks.length === 0) {
@@ -727,7 +728,7 @@ class TaskBoard {
           textAlign: 'center', color: '#94a3b8', padding: '60px 0',
           fontSize: '15px',
         },
-      }, '暂无归档任务'));
+      }, t('暂无归档任务')));
     }
   }
 
@@ -779,7 +780,7 @@ class TaskBoard {
         onclick: () => this.showRestoreOptions(task),
         onmouseenter: (e) => { e.target.style.filter = 'brightness(1.1)'; e.target.style.transform = 'translateY(-1px)'; },
         onmouseleave: (e) => { e.target.style.filter = 'none'; e.target.style.transform = 'none'; },
-      }, '恢复'),
+      }, t('恢复')),
     ]);
   }
 
@@ -824,7 +825,7 @@ class TaskBoard {
     }, [
       createElement('h2', {
         style: { margin: '0', fontSize: '20px', fontWeight: '700', color: '#1e293b' },
-      }, '📊 统计'),
+      }, t('📊 统计')),
       years.length > 0 ? createElement('select', {
         style: {
           padding: '6px 12px', border: '1px solid #e2e8f0', borderRadius: '8px',
@@ -835,12 +836,12 @@ class TaskBoard {
           this.renderStatsPanel();
         },
       }, [
-        createElement('option', { value: '', selected: this.selectedStatsYear === null }, '全部'),
+        createElement('option', { value: '', selected: this.selectedStatsYear === null }, t('全部')),
         ...years.map(y =>
           createElement('option', {
             value: y,
             selected: y === this.selectedStatsYear,
-          }, `${y} 年`)
+          }, t('{0} 年', y))
         ),
       ]) : null,
     ]);
@@ -850,12 +851,12 @@ class TaskBoard {
     const cardGrid = createElement('div', {
       style: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' },
     }, [
-      this.createStatCard('📋 总任务', totalTasks, '#3b82f6'),
+      this.createStatCard(t('📋 总任务'), totalTasks, '#3b82f6'),
       this.createStatCard('📖 ' + this.taskStore.getStatusText('todo'), todoCount, '#3b82f6'),
       this.createStatCard('🚴 ' + this.taskStore.getStatusText('doing'), doingCount, '#f59e0b'),
       this.createStatCard('✅ ' + this.taskStore.getStatusText('done'), doneCount, '#10b981'),
       this.createStatCard('⏳ ' + this.taskStore.getStatusText('unfinish'), unfinishCount, '#ef4444'),
-      this.createStatCard('🗄️ 已归档', totalArchived, '#64748b'),
+      this.createStatCard(t('🗄️ 已归档'), totalArchived, '#64748b'),
     ]);
     container.appendChild(cardGrid);
 
@@ -868,7 +869,7 @@ class TaskBoard {
     }, [
       createElement('h3', {
         style: { margin: '0 0 16px', fontSize: '17px', fontWeight: '700', color: '#1e293b' },
-      }, '📊 任务状态分布'),
+      }, t('📊 任务状态分布')),
       createElement('div', {
         style: { display: 'flex', flexDirection: 'column', gap: '12px' },
       }, [
@@ -951,12 +952,12 @@ class TaskBoard {
 
     container.appendChild(createElement('h2', {
       style: { margin: '0 0 20px', fontSize: '20px', fontWeight: '700', color: '#1e293b' },
-    }, '🏷️ 标签分类'));
+    }, t('🏷️ 标签分类')));
 
     if (sortedTags.length === 0) {
       container.appendChild(createElement('div', {
         style: { textAlign: 'center', color: '#94a3b8', padding: '60px 0', fontSize: '15px' },
-      }, '暂无标签，在编辑任务时添加标签'));
+      }, t('暂无标签，在编辑任务时添加标签')));
     } else {
       const tagGrid = createElement('div', {
         style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' },
@@ -982,7 +983,7 @@ class TaskBoard {
             }, `#${tag}`),
             createElement('span', {
               style: { fontSize: '13px', color: '#64748b', fontWeight: '600' },
-            }, `${tasks.length} 个任务`),
+            }, t('{0} 个任务', tasks.length)),
           ]),
           createElement('div', {
             style: { display: 'flex', gap: '6px', flexWrap: 'wrap' },
@@ -1023,25 +1024,25 @@ class TaskBoard {
 
     panel.innerHTML = `
       <div style="padding:20px;max-width:600px;">
-        <h3 style="margin:0 0 8px;font-size:16px;color:#1e293b;">⚙️ 设置</h3>
+        <h3 style="margin:0 0 8px;font-size:16px;color:#1e293b;">${t('⚙️ 设置')}</h3>
         <p style="font-size:13px;color:#64748b;margin:0 0 20px;line-height:1.5;">
-          所有任务数据存储在挂件块的属性中，导出为 JSON 可备份或迁移到其他挂件。
+          ${t('所有任务数据存储在挂件块的属性中，导出为 JSON 可备份或迁移到其他挂件。')}
         </p>
 
         <!-- 导出数据 -->
         <div style="background:#f8fafc;border-radius:8px;padding:16px;margin-bottom:12px;">
-          <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:4px;">📤 导出数据</div>
-          <p style="font-size:13px;color:#64748b;margin:0 0 8px;">将所有任务导出为 JSON 文件。</p>
+          <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:4px;">${t('📤 导出数据')}</div>
+          <p style="font-size:13px;color:#64748b;margin:0 0 8px;">${t('将所有任务导出为 JSON 文件。')}</p>
           <button id="settingsExportBtn"
-            style="padding:8px 16px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;cursor:pointer;font-size:14px;color:#1e293b;">导出 JSON</button>
+            style="padding:8px 16px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;cursor:pointer;font-size:14px;color:#1e293b;">${t('导出 JSON')}</button>
         </div>
 
         <!-- 导入数据 -->
         <div style="background:#f8fafc;border-radius:8px;padding:16px;">
-          <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:4px;">📥 导入数据</div>
-          <p style="font-size:13px;color:#64748b;margin:0 0 8px;">从 JSON 文件导入任务（按标题去重）。</p>
+          <div style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:4px;">${t('📥 导入数据')}</div>
+          <p style="font-size:13px;color:#64748b;margin:0 0 8px;">${t('从 JSON 文件导入任务（按标题去重）。')}</p>
           <button id="settingsImportBtn"
-            style="padding:8px 16px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;cursor:pointer;font-size:14px;color:#1e293b;">导入 JSON</button>
+            style="padding:8px 16px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;cursor:pointer;font-size:14px;color:#1e293b;">${t('导入 JSON')}</button>
         </div>
       </div>
     `;
@@ -1076,10 +1077,10 @@ class TaskBoard {
             this.renderAllTasks();
             this.calendar.refresh();
           } else {
-            alert('导入失败：数据格式不正确');
+            alert(t('导入失败：数据格式不正确'));
           }
         } catch (err) {
-          alert('导入失败：' + err.message);
+          alert(t('导入失败：{0}', err.message));
         }
       };
       input.click();

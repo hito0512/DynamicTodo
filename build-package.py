@@ -55,6 +55,32 @@ def collect_files():
     return files
 
 
+def raw_entry_names(data):
+    """直接解析 ZIP 原始字节里的条目名。
+
+    zipfile 读出来的名字会把 "\\" 归一成 "/"，所以校验分隔符不能走 zipfile。
+    """
+    names = []
+    for sig, name_len_offset, name_offset in (
+        (b"PK\x03\x04", 26, 30),   # 本地文件头
+        (b"PK\x01\x02", 28, 46),   # 中央目录
+    ):
+        index = 0
+        while True:
+            index = data.find(sig, index)
+            if index < 0:
+                break
+            nlen = int.from_bytes(
+                data[index + name_len_offset: index + name_len_offset + 2], "little"
+            )
+            name = data[index + name_offset: index + name_offset + nlen]
+            # 长度合理且都是可见字符，才当作条目名（避免误把压缩数据当签名）
+            if nlen and len(name) == nlen and all(b >= 0x20 for b in name):
+                names.append(name)
+            index += 4
+    return names
+
+
 def main():
     files = collect_files()
 
@@ -67,10 +93,6 @@ def main():
     with zipfile.ZipFile(OUT) as zf:
         infos = zf.infolist()
         names = [i.filename for i in infos]
-
-        backslash = [n for n in names if "\\" in n]
-        if backslash:
-            sys.exit("[错误] 以下 ZIP 条目含反斜杠: " + ", ".join(backslash))
 
         dirs = [n for n in names if n.endswith("/")]
         if dirs:
@@ -86,11 +108,19 @@ def main():
 
         total_bytes = sum(i.file_size for i in infos)
 
-    digest = hashlib.sha256(OUT.read_bytes()).hexdigest()
+    # 分隔符必须读原始字节判断：Python 的 zipfile 会自动把 "\\" 归一成 "/"，
+    # 用 namelist() 检查反斜杠永远查不出来。
+    raw = OUT.read_bytes()
+    raw_names = raw_entry_names(raw)
+    backslash = [n.decode("utf-8", "replace") for n in raw_names if b"\\" in n]
+    if backslash:
+        sys.exit("[错误] 以下 ZIP 条目含反斜杠: " + ", ".join(backslash))
+
+    digest = hashlib.sha256(raw).hexdigest()
     print(f"打包完成: {OUT.name}")
     print(f"条目数: {len(names)}  解压后大小: {total_bytes} 字节")
     print(f"SHA-256: {digest}")
-    print("分隔符校验: 全部为 / ，无反斜杠条目")
+    print(f"分隔符校验: {len(raw_names)} 个原始条目名全部为 / ，无反斜杠")
 
 
 if __name__ == "__main__":
