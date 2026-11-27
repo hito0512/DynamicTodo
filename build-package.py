@@ -21,6 +21,7 @@ OUT = ROOT / "package.zip"
 # 上架集市的必需文件与目录
 ENTRIES = [
     "CHANGELOG.md",
+    "CLI-ANYTHING.md",
     "LICENSE",
     "README.md",
     "icon.png",
