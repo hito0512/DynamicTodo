@@ -37,6 +37,52 @@ ENTRIES = [
 IGNORED_NAMES = {".DS_Store", "Thumbs.db", "desktop.ini"}
 
 
+def _is_png(head):
+    return head[:8] == b"\x89PNG\r\n\x1a\n"
+
+
+def _is_jpeg(head):
+    return head[:3] == b"\xff\xd8\xff"
+
+
+def _is_gif(head):
+    return head[:6] in (b"GIF87a", b"GIF89a")
+
+
+def _is_webp(head):
+    return head[:4] == b"RIFF" and head[8:12] == b"WEBP"
+
+
+# 扩展名 -> 真实文件头判定。看图类文件不能只看后缀：
+# icon.png 曾经实际内容是 JPEG（改了后缀但没重新编码），部分平台会拒绝。
+IMAGE_CHECKS = {
+    ".png": _is_png,
+    ".jpg": _is_jpeg,
+    ".jpeg": _is_jpeg,
+    ".gif": _is_gif,
+    ".webp": _is_webp,
+}
+
+
+def check_image_formats(files):
+    """校验图片文件的真实格式与扩展名一致，返回检查过的文件数。"""
+    bad = []
+    checked = 0
+    for path in files:
+        suffix = path.suffix.lower()
+        check = IMAGE_CHECKS.get(suffix)
+        if check is None:
+            continue
+        checked += 1
+        with open(path, "rb") as fh:
+            head = fh.read(16)
+        if not check(head):
+            bad.append(f"{path.relative_to(ROOT).as_posix()}（扩展名 {suffix}，文件头 {head[:4].hex(' ')}）")
+    if bad:
+        sys.exit("[错误] 图片内容与扩展名不符: " + "; ".join(bad))
+    return checked
+
+
 def collect_files():
     files = []
     for entry in ENTRIES:
@@ -83,6 +129,7 @@ def raw_entry_names(data):
 
 def main():
     files = collect_files()
+    checked_images = check_image_formats(files)
 
     with zipfile.ZipFile(OUT, "w", zipfile.ZIP_DEFLATED) as zf:
         for path in files:
@@ -121,6 +168,7 @@ def main():
     print(f"条目数: {len(names)}  解压后大小: {total_bytes} 字节")
     print(f"SHA-256: {digest}")
     print(f"分隔符校验: {len(raw_names)} 个原始条目名全部为 / ，无反斜杠")
+    print(f"图片校验: {checked_images} 个图片文件真实格式与扩展名一致")
 
 
 if __name__ == "__main__":
